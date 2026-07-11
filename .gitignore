@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+*.log
+
+# backend
+server/arcade.db
+server/arcade.db-journal
+server/arcade.db-wal
+server/arcade.db-shm
+
+# OS
+.DS_Store
