@@ -14,7 +14,7 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
   const [selected, setSelected] = useState([]);
   const [moves, setMoves] = useState(0);
   const [startTime, setStartTime] = useState(null);
-  const [status, setStatus] = useState('ready'); // ready | playing | over
+  const [status, setStatus] = useState('ready');
   const [finalScore, setFinalScore] = useState(0);
   const lockRef = useRef(false);
 
@@ -75,13 +75,10 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
         <span>MOVES: {moves}</span>
         <span>BEST: {bestScore}</span>
       </div>
-      <div className="game-canvas-container" style={{ width: 340 }}>
+      <div className="game-canvas-container">
         <div
+          className="memory-board"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 8,
-            width: 340,
             opacity: status === 'playing' ? 1 : 0.3,
             pointerEvents: status === 'playing' ? 'auto' : 'none',
           }}
@@ -90,14 +87,7 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
             <button
               key={card.id}
               onClick={() => handleFlip(card)}
-              style={{
-                aspectRatio: '1',
-                fontSize: 26,
-                background: card.flipped || card.matched ? '#2f2f52' : '#1b1b2f',
-                border: '1px solid #3d3d63',
-                borderRadius: 8,
-                color: '#f5f0e6',
-              }}
+              className={card.flipped || card.matched ? '' : 'face-down'}
             >
               {card.flipped || card.matched ? card.icon : '❓'}
             </button>

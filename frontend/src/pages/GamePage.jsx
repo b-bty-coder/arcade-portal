@@ -19,11 +19,9 @@ export default function GamePage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      // local-first: show whatever we have on-device immediately
       const local = await idbGet(localKey);
       if (local?.bestScore && !cancelled) setBestScore(local.bestScore);
 
-      // then reconcile with the server if logged in
       if (user) {
         try {
           const { data } = await api.getProgress(gameId);
@@ -78,7 +76,7 @@ export default function GamePage() {
 
   return (
     <div>
-      <div style={{ padding: '24px 0 4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+      <div className="game-page-header">
         <div>
           <Link to="/" className="eyebrow">&larr; All games</Link>
           <h1 className="display-xl" style={{ marginTop: 6 }}>{game.title}</h1>
