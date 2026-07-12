@@ -1,8 +1,3 @@
-/* ============================================================
-   DESIGN TOKENS
-   Theme: "Cartridge Arcade" — a handheld-console aesthetic.
-   Palette named after console hardware, not generic AI defaults.
-   ============================================================ */
 :root {
   --ink: #1b1b2f;
   --panel: #262643;
@@ -332,7 +327,7 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid var(--line);
   touch-action: none;
   width: 100%;
-  max-width: 360px;
+  max-width: min(360px, 88vw);
   height: auto;
   display: block;
   margin: 0 auto;
@@ -341,6 +336,7 @@ button { font-family: inherit; cursor: pointer; }
 .game-hud {
   display: flex; gap: 16px; font-family: var(--font-mono); font-size: 14px; color: var(--muted);
   flex-wrap: wrap;
+  justify-content: center;
 }
 .game-overlay {
   position: absolute; inset: 0; background: rgba(27,27,47,0.92);
@@ -352,16 +348,16 @@ button { font-family: inherit; cursor: pointer; }
 .game-canvas-container {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: min(360px, 88vw);
   margin: 0 auto;
 }
 
 .memory-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  max-width: 340px;
+  max-width: min(340px, 88vw);
   margin: 0 auto;
 }
 .memory-board button {
@@ -383,6 +379,214 @@ button { font-family: inherit; cursor: pointer; }
   padding: 24px 0 4px;
 }
 
+.game-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.game-fullscreen-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+  flex-shrink: 0;
+}
+.game-fullscreen-topbar .stat-pill { font-size: 12px; padding: 5px 10px; }
+.game-fullscreen-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px calc(12px + env(safe-area-inset-bottom));
+  overflow: hidden;
+  min-height: 0;
+}
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--panel-2); }
+
+.game-toast {
+  position: absolute;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
+  z-index: 600;
+  animation: toast-in 200ms ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.interstitial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(10, 10, 20, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.interstitial-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-cart);
+  padding: 26px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-pop);
+}
+
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 9px 8px;
+}
+.hamburger-btn span {
+  display: block;
+  height: 2px;
+  background: var(--paper);
+  border-radius: 2px;
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(10, 10, 20, 0.7);
+  display: flex;
+  justify-content: flex-end;
+}
+.drawer-panel {
+  width: min(80vw, 300px);
+  height: 100%;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: drawer-in 180ms ease;
+}
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.drawer-close { align-self: flex-end; }
+.drawer-stats { display: flex; gap: 10px; }
+.drawer-links { display: flex; flex-direction: column; gap: 4px; }
+.drawer-link {
+  padding: 14px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  color: var(--paper);
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 15px;
+  font-family: inherit;
+}
+.drawer-link:hover { background: var(--panel-2); }
+.drawer-link-danger { color: var(--ember); }
+
+.home-section { margin-top: 28px; }
+.section-title { margin-bottom: 12px; }
+
+.featured-carousel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent, var(--amber));
+  border-radius: var(--radius-cart);
+  padding: 20px;
+  margin-top: 16px;
+}
+.featured-title { color: var(--accent, var(--amber)); }
+.featured-desc { margin: 8px 0 16px; }
+.featured-play-btn { display: inline-flex; }
+.carousel-dots { display: flex; gap: 6px; margin-top: 16px; }
+.carousel-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--line); border: none; padding: 0;
+}
+.carousel-dot.active { background: var(--accent, var(--amber)); width: 20px; border-radius: 4px; }
+
+.trending-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scrollbar-width: thin;
+}
+.trending-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 84px;
+  text-align: center;
+}
+.trending-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--accent, var(--amber));
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--panel-2);
+}
+.trending-name { font-size: 12px; font-weight: 600; color: var(--paper); }
+.trending-count { font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+.trophy-row { display: flex; gap: 12px; }
+.trophy-card {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 10px;
+  text-align: center;
+}
+.trophy-card.trophy-1 { border-color: var(--amber); }
+.trophy-icon { font-size: 28px; }
+.trophy-name { font-weight: 600; font-size: 13px; margin-top: 6px; }
+.trophy-score { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
 footer.site-footer {
   margin-top: 48px;
   padding-top: 20px;
@@ -394,29 +598,27 @@ footer.site-footer {
 
 @media (max-width: 640px) {
   .app-shell { padding: 0 14px 48px; }
-
-  .hud { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px 0; }
-  .hud-logo { font-size: 11px; }
-  .nav-links { width: 100%; justify-content: space-between; }
-  .hud-stats { width: 100%; justify-content: space-between; }
-
+  .hud { flex-direction: row; align-items: center; gap: 8px; padding: 10px 0; flex-wrap: nowrap; }
+  .hud-logo { font-size: 10px; }
+  .nav-links-desktop { display: none; }
+  .hud-stats-desktop { display: none; }
+  .hamburger-btn { display: flex; }
   .display-xl { font-size: 20px; line-height: 1.5; }
   .display-sm { font-size: 11px; }
-
   .cart-grid { grid-template-columns: 1fr; gap: 14px; }
   .cartridge { padding: 24px 14px 14px; }
-
   .form-card { margin: 24px auto; padding: 20px; }
-
   .game-frame { padding: 14px; }
   .game-page-header { padding: 16px 0 4px; }
   .game-page-header .btn { width: 100%; text-align: center; justify-content: center; }
-
   .shop-grid { grid-template-columns: repeat(2, 1fr); }
-
   .leader-row { grid-template-columns: 30px 1fr auto; padding: 10px 12px; font-size: 14px; }
-
   .modal-overlay .streak-modal { padding: 24px; }
+  .trophy-row { flex-direction: column; }
+}
+
+@media (min-width: 641px) {
+  .hamburger-btn { display: none; }
 }
 
 @media (max-width: 380px) {
