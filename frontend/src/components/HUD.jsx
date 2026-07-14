@@ -9,6 +9,7 @@ export default function HUD() {
 
   const links = [
     { to: '/', label: 'Home' },
+    { to: '/games', label: 'Games' },
     { to: '/leaderboard', label: 'Leaderboard' },
     { to: '/shop', label: 'Shop' },
   ];

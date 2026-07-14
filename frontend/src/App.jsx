@@ -3,6 +3,7 @@ import HUD from './components/HUD';
 import StreakModal from './components/StreakModal';
 import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
+import Games from './pages/Games';
 import GamePage from './pages/GamePage';
 import Leaderboard from './pages/Leaderboard';
 import Shop from './pages/Shop';
@@ -26,6 +27,7 @@ export default function App() {
       <HUD />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/games" element={<Games />} />
         <Route path="/game/:gameId" element={<GamePage />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/shop" element={<Shop />} />
@@ -33,7 +35,6 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
-      <footer className="site-footer">Cartridge Arcade — a demo PWA game portal built with React.</footer>
       <StreakModal data={streakPopup} onClose={clearStreakPopup} />
     </div>
   );
