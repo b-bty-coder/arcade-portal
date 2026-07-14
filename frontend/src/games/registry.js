@@ -1,14 +1,13 @@
 import Snake from './Snake.jsx';
 import Memory from './Memory.jsx';
 
-// To add a new game: build a component that accepts { onGameOver, bestScore }
-// and calls onGameOver(score) when a round ends, then add an entry here.
 export const GAMES = [
   {
     id: 'snake',
     title: 'Neon Snake',
     description: 'Classic snake, console-cartridge style. Eat, grow, don\u2019t hit yourself.',
     accent: 'var(--amber)',
+    thumbnail: '/thumbnails/snake.png',
     component: Snake,
   },
   {
@@ -16,6 +15,7 @@ export const GAMES = [
     title: 'Cartridge Match',
     description: 'Flip cartridges, find the pairs, beat your best time.',
     accent: 'var(--sage)',
+    thumbnail: '/thumbnails/memory.png',
     component: Memory,
   },
 ];
