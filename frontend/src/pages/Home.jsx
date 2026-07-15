@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { GAMES } from '../games/registry';
-import { BannerAdSlot } from '../components/AdSlot';
 import FeaturedCarousel from '../components/FeaturedCarousel';
 import TrendingRow from '../components/TrendingRow';
 import { api } from '../api/client';
@@ -8,6 +7,7 @@ import { api } from '../api/client';
 export default function Home() {
   const [playerCounts, setPlayerCounts] = useState({});
   const [topPlayers, setTopPlayers] = useState([]);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
 
   useEffect(() => {
     api.getStatsOverview()
@@ -19,7 +19,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <div className={bannerDismissed ? '' : 'has-sticky-banner'}>
       <div style={{ padding: '20px 0 4px' }}>
         <p className="eyebrow">No downloads · No installs</p>
         <h1 className="display-xl">Pick a cartridge. Press start.</h1>
@@ -47,7 +47,18 @@ export default function Home() {
         </section>
       )}
 
-      <BannerAdSlot label="Home banner ad" />
+      {!bannerDismissed && (
+        <div className="sticky-banner">
+          <span className="sticky-banner-label">[Banner ad — swap for real AdSense/AdMob unit here]</span>
+          <button
+            className="sticky-banner-close"
+            onClick={() => setBannerDismissed(true)}
+            aria-label="Close ad"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,8 +9,8 @@ export default function Games() {
 
       <div className="game-thumb-grid">
         {GAMES.map((game) => (
-          <Link key={game.id} to={`/game/${game.id}`} className="game-thumb">
-            <div className="game-thumb-hex-wrap" style={{ '--accent': game.accent }}>
+          <Link key={game.id} to={`/game/${game.id}`} className="game-card" style={{ '--accent': game.accent }}>
+            <div className="game-thumb-hex-wrap">
               <div className="game-thumb-hex">
                 <img src={game.thumbnail} alt={game.title} />
               </div>
