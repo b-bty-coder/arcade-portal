@@ -857,3 +857,47 @@ footer.site-footer {
   border-radius: 999px;
   white-space: nowrap;
 }
+
+.profile-hex-panel {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border-radius: var(--radius-cart);
+  padding: 24px 20px;
+  margin-top: 20px;
+  border: 1px solid var(--line);
+}
+.profile-hex-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-cart);
+  padding: 2px;
+  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.shop-item-glow {
+  position: relative;
+  overflow: hidden;
+}
+.shop-item-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  background: linear-gradient(135deg, var(--accent, var(--amber)), var(--plum));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.9;
+}
