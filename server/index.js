@@ -211,11 +211,15 @@ app.post('/api/shop/buy', requireAuth, (req, res) => {
   const user = db.prepare('SELECT coins FROM users WHERE id = ?').get(req.userId);
   if (user.coins < item.cost) return res.status(402).json({ error: 'Not enough coins' });
 
-  const buy = db.transaction(() => {
+  db.exec('BEGIN');
+  try {
     db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(item.cost, req.userId);
     db.prepare('INSERT INTO inventory (user_id, item_id) VALUES (?, ?)').run(req.userId, itemId);
-  });
-  buy();
+    db.exec('COMMIT');
+  } catch (e) {
+    db.exec('ROLLBACK');
+    throw e;
+  }
 
   const updated = db.prepare('SELECT coins FROM users WHERE id = ?').get(req.userId);
   res.json({ ok: true, coins: updated.coins });
