@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getSkinPreview } from '../lib/cosmetics';
 
 export default function HUD() {
   const { user, logout } = useAuth();
@@ -22,7 +23,7 @@ export default function HUD() {
     <>
       <div className="hud">
         <Link to="/" className="hud-logo">
-          <span className="chip" />
+          <span className="chip" style={{ background: getSkinPreview(user?.equippedSkin) }} />
           CARTRIDGE ARCADE
         </Link>
 
@@ -31,7 +32,7 @@ export default function HUD() {
             <Link
               key={l.to}
               to={l.to}
-              className={'nav-link ' + (location.pathname === l.to ? 'active' : '')}
+              className={`nav-link ${location.pathname === l.to ? 'active' : ''}`}
             >
               {l.label}
             </Link>
@@ -41,8 +42,8 @@ export default function HUD() {
         <div className="hud-stats hud-stats-desktop">
           {user ? (
             <>
-              <span className="stat-pill coins" title="Coins">coins {user.coins}</span>
-              <span className="stat-pill streak" title="Daily streak">streak {user.currentStreak}</span>
+              <span className="stat-pill coins" title="Coins">🪙 {user.coins}</span>
+              <span className="stat-pill streak" title="Daily streak">🔥 {user.currentStreak}</span>
               <Link to="/profile" className="nav-link">{user.username}</Link>
               <button className="btn btn-ghost" onClick={logout}>Log out</button>
             </>
@@ -63,12 +64,12 @@ export default function HUD() {
       {drawerOpen && (
         <div className="drawer-overlay" onClick={closeDrawer}>
           <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>
-            <button className="icon-btn drawer-close" onClick={closeDrawer} aria-label="Close menu">X</button>
+            <button className="icon-btn drawer-close" onClick={closeDrawer} aria-label="Close menu">✕</button>
 
             {user && (
               <div className="drawer-stats">
-                <span className="stat-pill coins">coins {user.coins}</span>
-                <span className="stat-pill streak">streak {user.currentStreak}</span>
+                <span className="stat-pill coins">🪙 {user.coins}</span>
+                <span className="stat-pill streak">🔥 {user.currentStreak}</span>
               </div>
             )}
 

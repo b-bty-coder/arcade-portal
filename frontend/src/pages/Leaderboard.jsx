@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { GAMES } from '../games/registry';
+import { getFramePreview } from '../lib/cosmetics';
 
 export default function Leaderboard() {
   const [params, setParams] = useSearchParams();
@@ -49,7 +50,14 @@ export default function Leaderboard() {
       {rows.map((row, i) => (
         <div key={i} className={`leader-row ${i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : ''}`}>
           <span className="rank">#{i + 1}</span>
-          <span>{row.username}</span>
+          <span className="leader-name">
+            <span
+              className="frame-badge"
+              style={{ background: getFramePreview(row.equipped_frame) }}
+              title="Equipped frame"
+            />
+            {row.username}
+          </span>
           <span className="score">{activeGame === 'global' ? row.total_score : row.high_score}</span>
         </div>
       ))}
