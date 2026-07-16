@@ -901,3 +901,20 @@ footer.site-footer {
   pointer-events: none;
   opacity: 0.9;
 }
+
+/* Sharper hex badges + true wrap-around gradient border */
+.profile-hex-panel::before {
+  background: conic-gradient(from 180deg at 50% 50%, var(--amber), var(--ember), var(--sage), var(--plum), var(--amber));
+}
+
+.profile-hex-badge {
+  padding: 5px;
+  filter: drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 10px var(--accent, var(--amber)));
+}
+.profile-hex-badge-inner {
+  background: var(--ink);
+}
+.profile-hex-value {
+  font-size: 15px;
+  font-weight: 700;
+}
