@@ -918,3 +918,15 @@ footer.site-footer {
   font-size: 15px;
   font-weight: 700;
 }
+
+/* Extra hex edge sharpness — no shape change, only stroke + shadow tuning */
+.profile-hex-badge {
+  padding: 6px;
+  filter: drop-shadow(0 0 0.5px var(--accent, var(--amber))) drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 8px var(--accent, var(--amber)));
+}
+
+/* Extra hex edge sharpness — no shape change, only stroke + shadow tuning */
+.profile-hex-badge {
+  padding: 6px;
+  filter: drop-shadow(0 0 0.5px var(--accent, var(--amber))) drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 8px var(--accent, var(--amber)));
+}
