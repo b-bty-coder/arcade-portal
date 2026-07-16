@@ -930,3 +930,19 @@ footer.site-footer {
   padding: 6px;
   filter: drop-shadow(0 0 0.5px var(--accent, var(--amber))) drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 8px var(--accent, var(--amber)));
 }
+
+/* RESTORE — exactly this state, no further changes */
+.profile-hex-panel::before {
+  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage)) !important;
+}
+.profile-hex-badge {
+  padding: 3px !important;
+  filter: drop-shadow(0 0 8px var(--accent, var(--amber))) !important;
+}
+.profile-hex-badge-inner {
+  background: var(--panel) !important;
+}
+.profile-hex-value {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
