@@ -1,13 +1,8 @@
-// db.js — SQLite schema + seed data for the arcade portal backend.
-// Uses Node's built-in node:sqlite (requires Node 22.5+) instead of the
-// better-sqlite3 native addon. This means there is nothing to compile —
-// works the same on a laptop, a server, or Termux on Android.
-
-const { DatabaseSync } = require('node:sqlite');
+const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new DatabaseSync(path.join(__dirname, 'arcade.db'));
-db.exec('PRAGMA journal_mode = WAL');
+const db = new Database(path.join(__dirname, 'arcade.db'));
+db.pragma('journal_mode = WAL');
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (
@@ -49,9 +44,10 @@ CREATE TABLE IF NOT EXISTS leaderboard (
 CREATE TABLE IF NOT EXISTS shop_items (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  type TEXT NOT NULL, -- 'skin' | 'frame'
+  type TEXT NOT NULL,
   cost INTEGER NOT NULL,
-  preview TEXT NOT NULL -- css color or gradient used to render a swatch
+  preview TEXT NOT NULL,
+  rarity TEXT NOT NULL DEFAULT 'common'
 );
 
 CREATE TABLE IF NOT EXISTS inventory (
@@ -65,21 +61,20 @@ CREATE TABLE IF NOT EXISTS inventory (
 );
 `);
 
-// Seed shop items once.
 const seedItems = [
-  ['skin_amber', 'Amber Cartridge', 'skin', 50, '#F2C14E'],
-  ['skin_sage', 'Sage Cartridge', 'skin', 50, '#66A182'],
-  ['skin_plum', 'Plum Cartridge', 'skin', 80, '#7B4B94'],
-  ['skin_ember', 'Ember Cartridge', 'skin', 80, '#E4572E'],
-  ['skin_holo', 'Holo Cartridge', 'skin', 200, 'linear-gradient(135deg,#F2C14E,#E4572E,#7B4B94)'],
-  ['frame_default', 'Classic Frame', 'frame', 0, '#3A3A55'],
-  ['frame_gold', 'Gold Frame', 'frame', 120, '#F2C14E'],
-  ['frame_neon', 'Neon Frame', 'frame', 150, '#66A182'],
-  ['frame_royal', 'Royal Frame', 'frame', 180, '#7B4B94'],
+  ['skin_amber', 'Amber Cartridge', 'skin', 50, '#F2C14E', 'common'],
+  ['skin_sage', 'Sage Cartridge', 'skin', 50, '#66A182', 'common'],
+  ['skin_plum', 'Plum Cartridge', 'skin', 80, '#7B4B94', 'rare'],
+  ['skin_ember', 'Ember Cartridge', 'skin', 80, '#E4572E', 'rare'],
+  ['skin_holo', 'Holo Cartridge', 'skin', 200, 'linear-gradient(135deg,#F2C14E,#E4572E,#7B4B94)', 'legendary'],
+  ['frame_default', 'Classic Frame', 'frame', 0, '#3A3A55', 'common'],
+  ['frame_gold', 'Gold Frame', 'frame', 120, '#F2C14E', 'rare'],
+  ['frame_neon', 'Neon Frame', 'frame', 150, '#66A182', 'epic'],
+  ['frame_royal', 'Royal Frame', 'frame', 180, '#7B4B94', 'legendary'],
 ];
 
 const insertItem = db.prepare(
-  `INSERT OR IGNORE INTO shop_items (id, name, type, cost, preview) VALUES (?, ?, ?, ?, ?)`
+  'INSERT OR IGNORE INTO shop_items (id, name, type, cost, preview, rarity) VALUES (?, ?, ?, ?, ?, ?)'
 );
 for (const item of seedItems) insertItem.run(...item);
 

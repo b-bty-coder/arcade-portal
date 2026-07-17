@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { getRarityColor } from '../lib/cosmetics';
 
 export default function Shop() {
   const { user, inventory, refreshProfile } = useAuth();
@@ -64,8 +65,12 @@ export default function Shop() {
             {items.filter((i) => i.type === type).map((item) => {
               const isOwned = owned.has(item.id);
               const isEquipped = equippedIds.includes(item.id);
+              const rarityColor = getRarityColor(item.rarity);
               return (
-                <div key={item.id} className="shop-item">
+                <div key={item.id} className="shop-item" style={{ borderColor: rarityColor }}>
+                  <span className="rarity-tag" style={{ color: rarityColor, borderColor: rarityColor }}>
+                    {item.rarity || 'common'}
+                  </span>
                   <div className="swatch" style={{ background: item.preview }} />
                   <div style={{ fontSize: 14, fontWeight: 600 }}>{item.name}</div>
                   <div className="price">{item.cost === 0 ? 'Free' : `🪙 ${item.cost}`}</div>

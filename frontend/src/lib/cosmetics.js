@@ -13,10 +13,21 @@ export const FRAME_PREVIEWS = {
   frame_royal: '#7B4B94',
 };
 
+export const RARITY_COLORS = {
+  common: '#A8A3C0',
+  rare: '#66A182',
+  epic: '#7B4B94',
+  legendary: '#F2C14E',
+};
+
 export function getSkinPreview(id) {
   return SKIN_PREVIEWS[id] || 'var(--amber)';
 }
 
 export function getFramePreview(id) {
   return FRAME_PREVIEWS[id] || 'var(--line)';
+}
+
+export function getRarityColor(rarity) {
+  return RARITY_COLORS[rarity] || RARITY_COLORS.common;
 }
