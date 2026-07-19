@@ -4,16 +4,14 @@ import { getGame } from '../games/registry';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { idbGet, idbSet } from '../lib/idb';
-import { BannerAdSlot, RewardedAdSlot } from '../components/AdSlot';
+import { BannerAdSlot } from '../components/AdSlot';
 
 export default function GamePage() {
   const { gameId } = useParams();
-  const { user, refreshProfile } = useAuth();
+  const { user } = useAuth();
   const game = getGame(gameId);
   const [bestScore, setBestScore] = useState(0);
   const [message, setMessage] = useState('');
-  const [adRewardBusy, setAdRewardBusy] = useState(false);
-
   const localKey = `progress:${gameId}`;
 
   useEffect(() => {
@@ -21,7 +19,6 @@ export default function GamePage() {
     (async () => {
       const local = await idbGet(localKey);
       if (local?.bestScore && !cancelled) setBestScore(local.bestScore);
-
       if (user) {
         try {
           const { data } = await api.getProgress(gameId);
@@ -41,7 +38,6 @@ export default function GamePage() {
       const newBest = Math.max(bestScore, score);
       setBestScore(newBest);
       await idbSet(localKey, { bestScore: newBest, lastScore: score, updatedAt: Date.now() });
-
       if (!user) {
         setMessage('Log in to save your progress and appear on the leaderboard.');
         return;
@@ -57,45 +53,24 @@ export default function GamePage() {
     [bestScore, gameId, user, localKey]
   );
 
-  async function claimAdReward() {
-    if (!user) { setMessage('Log in to earn coins from rewarded ads.'); return; }
-    setAdRewardBusy(true);
-    try {
-      const res = await api.claimAdReward();
-      await refreshProfile();
-      setMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
-    } catch (e) {
-      setMessage(e.message);
-    } finally {
-      setAdRewardBusy(false);
-    }
-  }
-
   if (!game) return <Navigate to="/" replace />;
   const GameComponent = game.component;
+  const isVertical = game.orientation !== 'horizontal';
 
   return (
     <div>
-      <div className="game-page-header">
-        <div>
-          <Link to="/" className="eyebrow">&larr; All games</Link>
-          <h1 className="display-xl" style={{ marginTop: 6 }}>{game.title}</h1>
-        </div>
-        <Link to={`/leaderboard?game=${game.id}`} className="btn btn-ghost">View leaderboard</Link>
+      <div className="game-page-header" style={{ justifyContent: 'space-between' }}>
+        <Link to="/" className="icon-btn" aria-label="Back to all games">←</Link>
+        <Link to={`/leaderboard?game=${game.id}`} className="icon-btn" aria-label="View leaderboard">🏆</Link>
       </div>
 
-      <BannerAdSlot label="Pre-game banner ad" />
+      {isVertical && <BannerAdSlot label="Pre-game banner ad" />}
 
       <div className="game-frame">
         <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
       </div>
 
       {message && <p className="subtitle" style={{ marginTop: 14 }}>{message}</p>}
-
-      <div style={{ marginTop: 8 }}>
-        <RewardedAdSlot onRewardClaim={claimAdReward} rewardLabel="+20 coins" />
-        {adRewardBusy && <p className="eyebrow">Claiming reward…</p>}
-      </div>
     </div>
   );
 }

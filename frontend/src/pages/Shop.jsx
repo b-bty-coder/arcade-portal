@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { getRarityColor } from '../lib/cosmetics';
+import { RewardedAdSlot } from '../components/AdSlot';
 
 export default function Shop() {
   const { user, inventory, refreshProfile } = useAuth();
   const [items, setItems] = useState([]);
   const [equippedCounts, setEquippedCounts] = useState({ skins: {}, frames: {} });
   const [busyId, setBusyId] = useState(null);
+  const [adRewardBusy, setAdRewardBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -73,6 +75,22 @@ export default function Shop() {
     }
   }
 
+  async function claimAdReward() {
+    if (!user) { setMessage('Log in to earn coins from rewarded ads.'); return; }
+    setError('');
+    setMessage('');
+    setAdRewardBusy(true);
+    try {
+      const res = await api.claimAdReward();
+      await refreshProfile();
+      setMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setAdRewardBusy(false);
+    }
+  }
+
   if (!user) {
     return (
       <div style={{ padding: '48px 0' }}>
@@ -90,6 +108,11 @@ export default function Shop() {
       <p className="eyebrow">Cosmetics only — nothing here is pay-to-win</p>
       <h1 className="display-xl">Shop</h1>
       <p className="subtitle">You have <strong style={{ color: 'var(--amber)' }}>🪙 {user.coins}</strong> coins.</p>
+
+      <div style={{ marginTop: 10, marginBottom: 4 }}>
+        <RewardedAdSlot onRewardClaim={claimAdReward} rewardLabel="+20 coins" />
+        {adRewardBusy && <p className="eyebrow">Claiming reward…</p>}
+      </div>
 
       {error && <p className="error-text">{error}</p>}
       {message && <p className="subtitle" style={{ color: 'var(--sage)' }}>{message}</p>}
@@ -110,7 +133,7 @@ export default function Shop() {
                   : item.cost;
 
                 return (
-                  <div key={item.id} className="shop-item" style={{ borderColor: rarityColor, position: 'relative' }}>
+                  <div key={item.id} className="shop-item shop-item-glow" style={{ '--accent': item.preview, position: 'relative' }}>
                     {item.id === mostPopularId && (
                       <span className="popular-tag">🔥 Most Popular</span>
                     )}
