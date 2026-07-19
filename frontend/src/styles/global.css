@@ -963,3 +963,61 @@ footer.site-footer {
   mask-composite: exclude !important;
   pointer-events: none !important;
 }
+
+/* Glowing gradient borders across the whole profile page */
+
+.player-card-preview {
+  position: relative !important;
+  border-color: transparent !important;
+  overflow: visible !important;
+}
+.player-card-preview::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -2px !important;
+  border-radius: var(--radius-cart) !important;
+  padding: 2px !important;
+  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.profile-hex-panel {
+  border-color: transparent !important;
+  overflow: visible !important;
+}
+.profile-hex-panel::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -2px !important;
+  border-radius: var(--radius-cart) !important;
+  padding: 2px !important;
+  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.shop-item.shop-item-glow {
+  position: relative !important;
+  overflow: visible !important;
+  border-color: transparent !important;
+}
+.shop-item.shop-item-glow::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: -2px !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 2px !important;
+  background: linear-gradient(135deg, var(--accent, var(--amber)), var(--plum)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
