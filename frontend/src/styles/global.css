@@ -1034,3 +1034,16 @@ footer.site-footer {
 .shop-item.shop-item-glow::before {
   background: conic-gradient(from 45deg, var(--accent, var(--amber)), var(--amber), var(--sage), var(--accent, var(--amber))) !important;
 }
+
+/* Remove gradient glow from player card — back to plain border */
+.player-card-preview::before {
+  display: none !important;
+}
+.player-card-preview {
+  border-color: var(--line) !important;
+}
+
+/* Fix cosmetics card gradient — force visible contrast regardless of item color */
+.shop-item.shop-item-glow::before {
+  background: conic-gradient(from 45deg, var(--accent, var(--amber)), var(--amber), var(--sage), var(--accent, var(--amber))) !important;
+}
