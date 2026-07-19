@@ -1080,3 +1080,19 @@ footer.site-footer {
 .snake-dpad-pause { grid-column: 2; grid-row: 2; font-size: 16px; }
 .snake-dpad-right { grid-column: 3; grid-row: 2; }
 .snake-dpad-down { grid-column: 2; grid-row: 2; margin-top: 64px; }
+
+/* Fix D-pad layout to proper 3x3 grid, remove mobile tap-flash */
+.snake-dpad {
+  grid-template-rows: repeat(3, 56px) !important;
+}
+.snake-dpad-down {
+  grid-column: 2 !important;
+  grid-row: 3 !important;
+  margin-top: 0 !important;
+}
+.snake-dpad-btn {
+  -webkit-tap-highlight-color: transparent !important;
+}
+.snake-dpad-btn:focus {
+  outline: none !important;
+}
