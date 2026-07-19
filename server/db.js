@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS users (
   equipped_frame TEXT DEFAULT 'default',
   ad_rewards_today INTEGER NOT NULL DEFAULT 0,
   ad_rewards_date TEXT,
+  discount_item_id TEXT,
+  discount_pct INTEGER NOT NULL DEFAULT 0,
+  discount_ads_today INTEGER NOT NULL DEFAULT 0,
+  discount_ads_date TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

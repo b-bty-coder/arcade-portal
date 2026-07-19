@@ -67,6 +67,8 @@ function publicUser(u) {
     longestStreak: u.longest_streak,
     equippedSkin: u.equipped_skin,
     equippedFrame: u.equipped_frame,
+    discountItemId: u.discount_item_id,
+    discountPct: u.discount_pct,
   };
 }
 
@@ -135,6 +137,50 @@ app.post('/api/coins/reward-ad', requireAuth, (req, res) => {
     coins: updated.coins,
     remainingToday: MAX_AD_REWARDS_PER_DAY - (alreadyToday + 1),
   });
+});
+
+const DISCOUNT_PCT = 20;
+const MAX_DISCOUNT_ADS_PER_DAY = 3;
+
+app.post('/api/shop/watch-ad-discount', requireAuth, (req, res) => {
+  const { itemId } = req.body || {};
+  if (!itemId) return res.status(400).json({ error: 'Missing itemId' });
+
+  const item = db.prepare('SELECT id FROM shop_items WHERE id = ?').get(itemId);
+  if (!item) return res.status(404).json({ error: 'Item not found' });
+
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.userId);
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyToday = user.discount_ads_date === today ? user.discount_ads_today : 0;
+
+  if (alreadyToday >= MAX_DISCOUNT_ADS_PER_DAY) {
+    return res.status(429).json({ error: 'Daily discount-ad limit reached, come back tomorrow' });
+  }
+
+  db.prepare(
+    'UPDATE users SET discount_item_id = ?, discount_pct = ?, discount_ads_today = ?, discount_ads_date = ? WHERE id = ?'
+  ).run(itemId, DISCOUNT_PCT, alreadyToday + 1, today, req.userId);
+
+  res.json({
+    ok: true,
+    itemId,
+    discountPct: DISCOUNT_PCT,
+    remainingToday: MAX_DISCOUNT_ADS_PER_DAY - (alreadyToday + 1),
+  });
+});
+
+app.get('/api/stats/equipped-counts', (req, res) => {
+  const skinRows = db
+    .prepare("SELECT equipped_skin, COUNT(*) as count FROM users WHERE equipped_skin IS NOT NULL AND equipped_skin != 'default' GROUP BY equipped_skin")
+    .all();
+  const frameRows = db
+    .prepare("SELECT equipped_frame, COUNT(*) as count FROM users WHERE equipped_frame IS NOT NULL AND equipped_frame != 'default' GROUP BY equipped_frame")
+    .all();
+  const skins = {};
+  skinRows.forEach((r) => { skins[r.equipped_skin] = r.count; });
+  const frames = {};
+  frameRows.forEach((r) => { frames[r.equipped_frame] = r.count; });
+  res.json({ skins, frames });
 });
 
 app.get('/api/progress/:gameId', requireAuth, (req, res) => {
@@ -208,13 +254,21 @@ app.post('/api/shop/buy', requireAuth, (req, res) => {
   const owned = db.prepare('SELECT 1 FROM inventory WHERE user_id = ? AND item_id = ?').get(req.userId, itemId);
   if (owned) return res.status(409).json({ error: 'Already owned' });
 
-  const user = db.prepare('SELECT coins FROM users WHERE id = ?').get(req.userId);
-  if (user.coins < item.cost) return res.status(402).json({ error: 'Not enough coins' });
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.userId);
+  const hasDiscount = user.discount_item_id === itemId && user.discount_pct > 0;
+  const finalCost = hasDiscount
+    ? Math.max(0, Math.round(item.cost * (1 - user.discount_pct / 100)))
+    : item.cost;
+
+  if (user.coins < finalCost) return res.status(402).json({ error: 'Not enough coins' });
 
   db.exec('BEGIN');
   try {
-    db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(item.cost, req.userId);
+    db.prepare('UPDATE users SET coins = coins - ? WHERE id = ?').run(finalCost, req.userId);
     db.prepare('INSERT INTO inventory (user_id, item_id) VALUES (?, ?)').run(req.userId, itemId);
+    if (hasDiscount) {
+      db.prepare('UPDATE users SET discount_item_id = NULL, discount_pct = 0 WHERE id = ?').run(req.userId);
+    }
     db.exec('COMMIT');
   } catch (e) {
     db.exec('ROLLBACK');
@@ -222,7 +276,7 @@ app.post('/api/shop/buy', requireAuth, (req, res) => {
   }
 
   const updated = db.prepare('SELECT coins FROM users WHERE id = ?').get(req.userId);
-  res.json({ ok: true, coins: updated.coins });
+  res.json({ ok: true, coins: updated.coins, paidWithDiscount: hasDiscount, amountPaid: finalCost });
 });
 
 app.post('/api/shop/equip', requireAuth, (req, res) => {

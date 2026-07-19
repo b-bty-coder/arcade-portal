@@ -8,16 +8,16 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth) {
     const token = getToken();
-    if (token) headers.Authorization = 'Bearer ' + token;
+    if (token) headers.Authorization = `Bearer ${token}`;
   }
-  const res = await fetch(BASE + path, {
+  const res = await fetch(`${BASE}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(data.error || ('Request failed (' + res.status + ')'));
+    throw new Error(data.error || `Request failed (${res.status})`);
   }
   return data;
 }
@@ -28,13 +28,15 @@ export const api = {
   me: () => request('/me'),
   checkin: () => request('/streak/checkin', { method: 'POST' }),
   claimAdReward: () => request('/coins/reward-ad', { method: 'POST' }),
-  getProgress: (gameId) => request('/progress/' + gameId),
-  saveProgress: (gameId, data) => request('/progress/' + gameId, { method: 'POST', body: { data } }),
-  submitScore: (gameId, score) => request('/leaderboard/' + gameId, { method: 'POST', body: { score } }),
-  getLeaderboard: (gameId) => request('/leaderboard/' + gameId, { auth: false }),
+  getProgress: (gameId) => request(`/progress/${gameId}`),
+  saveProgress: (gameId, data) => request(`/progress/${gameId}`, { method: 'POST', body: { data } }),
+  submitScore: (gameId, score) => request(`/leaderboard/${gameId}`, { method: 'POST', body: { score } }),
+  getLeaderboard: (gameId) => request(`/leaderboard/${gameId}`, { auth: false }),
   getGlobalLeaderboard: () => request('/leaderboard-global/top', { auth: false }),
   getShopItems: () => request('/shop/items', { auth: false }),
   getStatsOverview: () => request('/stats/overview', { auth: false }),
+  getEquippedCounts: () => request('/stats/equipped-counts', { auth: false }),
+  watchAdForDiscount: (itemId) => request('/shop/watch-ad-discount', { method: 'POST', body: { itemId } }),
   buyItem: (itemId) => request('/shop/buy', { method: 'POST', body: { itemId } }),
   equipItem: (itemId, type) => request('/shop/equip', { method: 'POST', body: { itemId, type } }),
 };

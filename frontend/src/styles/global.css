@@ -258,9 +258,164 @@ button { font-family: inherit; cursor: pointer; }
 .leader-row.top3 .rank { color: #d18a52; }
 .leader-row .score { font-family: var(--font-mono); font-weight: 600; }
 .leader-name { display: flex; align-items: center; gap: 8px; }
-.frame-badge { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.25); }
-.player-card-preview { display: flex; align-items: center; gap: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-cart); padding: 20px; margin-top: 12px; border-left: 4px solid var(--skin, var(--amber)); }
-.player-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--skin, var(--amber)); border: 3px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 22px; color: var(--ink); flex-shrink: 0; }
+.frame-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.player-card-preview {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-cart);
+  padding: 20px;
+  margin-top: 12px;
+  border-left: 4px solid var(--skin, var(--amber));
+}
+.player-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--skin, var(--amber));
+  border: 3px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.profile-hero {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.profile-hex-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.profile-hex-badge {
+  width: 104px;
+  height: 104px;
+  clip-path: path('M 39.88 9.00 L 20.82 20.00 Q 8.70 27.00 8.70 41.00 L 8.70 63.00 Q 8.70 77.00 20.82 84.00 L 39.88 95.00 Q 52.00 102.00 64.12 95.00 L 83.18 84.00 Q 95.30 77.00 95.30 63.00 L 95.30 41.00 Q 95.30 27.00 83.18 20.00 L 64.12 9.00 Q 52.00 2.00 39.88 9.00 Z');
+  background: var(--accent, var(--amber));
+  padding: 3px;
+  filter: drop-shadow(0 0 8px var(--accent, var(--amber)));
+}
+.profile-hex-badge-inner {
+  width: 98px;
+  height: 98px;
+  clip-path: path('M 37.74 9.50 L 20.42 19.50 Q 9.16 26.00 9.16 39.00 L 9.16 59.00 Q 9.16 72.00 20.42 78.50 L 37.74 88.50 Q 49.00 95.00 60.26 88.50 L 77.58 78.50 Q 88.84 72.00 88.84 59.00 L 88.84 39.00 Q 88.84 26.00 77.58 19.50 L 60.26 9.50 Q 49.00 3.00 37.74 9.50 Z');
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 8px;
+}
+.profile-hex-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.profile-hex-value {
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--paper);
+}
+
+.profile-circle-wrap {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  padding: 4px;
+  background: var(--skin, var(--amber));
+  filter: drop-shadow(0 0 18px var(--skin, var(--amber)));
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+.profile-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 20px;
+}
+.profile-circle-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.cosmetics-gallery-row {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 8px 2px 12px;
+}
+.cosmetics-hex-card {
+  flex-shrink: 0;
+  width: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  position: relative;
+}
+.cosmetics-hex-wrap {
+  width: 104px;
+  height: 104px;
+  clip-path: path('M 39.88 9.00 L 20.82 20.00 Q 8.70 27.00 8.70 41.00 L 8.70 63.00 Q 8.70 77.00 20.82 84.00 L 39.88 95.00 Q 52.00 102.00 64.12 95.00 L 83.18 84.00 Q 95.30 77.00 95.30 63.00 L 95.30 41.00 Q 95.30 27.00 83.18 20.00 L 64.12 9.00 Q 52.00 2.00 39.88 9.00 Z');
+  background: var(--accent, var(--amber));
+  padding: 3px;
+  filter: drop-shadow(0 0 8px var(--accent, var(--amber)));
+}
+.cosmetics-hex-inner {
+  width: 98px;
+  height: 98px;
+  clip-path: path('M 37.74 9.50 L 20.42 19.50 Q 9.16 26.00 9.16 39.00 L 9.16 59.00 Q 9.16 72.00 20.42 78.50 L 37.74 88.50 Q 49.00 95.00 60.26 88.50 L 77.58 78.50 Q 88.84 72.00 88.84 59.00 L 88.84 39.00 Q 88.84 26.00 77.58 19.50 L 60.26 9.50 Q 49.00 3.00 37.74 9.50 Z');
+}
+.cosmetics-equipped-flag {
+  position: absolute;
+  top: 80px;
+  background: var(--panel);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
 
 .shop-grid {
   display: grid;
@@ -283,7 +438,31 @@ button { font-family: inherit; cursor: pointer; }
   border: 1px solid rgba(0,0,0,0.2);
 }
 .shop-item .price { font-family: var(--font-mono); color: var(--amber); margin: 6px 0 10px; }
-.rarity-tag { display: inline-block; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid; border-radius: 999px; padding: 2px 8px; margin-bottom: 6px; }
+.rarity-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+.popular-tag {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ember);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
 
 .ad-slot {
   border: 1px dashed var(--line);
@@ -706,22 +885,31 @@ footer.site-footer {
 
 @media (max-width: 640px) {
   .app-shell { padding: 0 14px 48px; }
+
   .hud { flex-direction: row; align-items: center; gap: 8px; padding: 10px 0; flex-wrap: nowrap; }
   .hud-logo { font-size: 10px; }
   .nav-links-desktop { display: none; }
   .hud-stats-desktop { display: none; }
   .hamburger-btn { display: flex; }
+
   .display-xl { font-size: 20px; line-height: 1.5; }
   .display-sm { font-size: 11px; }
+
   .cart-grid { grid-template-columns: 1fr; gap: 14px; }
   .cartridge { padding: 24px 14px 14px; }
+
   .form-card { margin: 24px auto; padding: 20px; }
+
   .game-frame { padding: 14px; }
   .game-page-header { padding: 16px 0 4px; }
   .game-page-header .btn { width: 100%; text-align: center; justify-content: center; }
+
   .shop-grid { grid-template-columns: repeat(2, 1fr); }
+
   .leader-row { grid-template-columns: 30px 1fr auto; padding: 10px 12px; font-size: 14px; }
+
   .modal-overlay .streak-modal { padding: 24px; }
+
   .trophy-row { flex-direction: column; }
 }
 
@@ -732,218 +920,4 @@ footer.site-footer {
 @media (max-width: 380px) {
   .cartridge .label-stripe { font-size: 11px; padding: 12px 8px; }
   .shop-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.profile-hero {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-.profile-hex-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.profile-hex-badge {
-  width: 104px;
-  height: 104px;
-  clip-path: path('M 39.88 9.00 L 20.82 20.00 Q 8.70 27.00 8.70 41.00 L 8.70 63.00 Q 8.70 77.00 20.82 84.00 L 39.88 95.00 Q 52.00 102.00 64.12 95.00 L 83.18 84.00 Q 95.30 77.00 95.30 63.00 L 95.30 41.00 Q 95.30 27.00 83.18 20.00 L 64.12 9.00 Q 52.00 2.00 39.88 9.00 Z');
-  background: var(--accent, var(--amber));
-  padding: 3px;
-  filter: drop-shadow(0 0 8px var(--accent, var(--amber)));
-}
-.profile-hex-badge-inner {
-  width: 98px;
-  height: 98px;
-  clip-path: path('M 37.74 9.50 L 20.42 19.50 Q 9.16 26.00 9.16 39.00 L 9.16 59.00 Q 9.16 72.00 20.42 78.50 L 37.74 88.50 Q 49.00 95.00 60.26 88.50 L 77.58 78.50 Q 88.84 72.00 88.84 59.00 L 88.84 39.00 Q 88.84 26.00 77.58 19.50 L 60.26 9.50 Q 49.00 3.00 37.74 9.50 Z');
-  background: var(--panel);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  text-align: center;
-  padding: 8px;
-}
-.profile-hex-label {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.5px;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.profile-hex-value {
-  font-family: var(--font-display);
-  font-size: 13px;
-  color: var(--paper);
-}
-
-.profile-circle-wrap {
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  padding: 4px;
-  background: var(--skin, var(--amber));
-  filter: drop-shadow(0 0 18px var(--skin, var(--amber)));
-  flex-shrink: 0;
-  margin: 0 auto;
-}
-.profile-circle {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--panel);
-  border: 2px solid var(--ink);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  padding: 20px;
-}
-.profile-circle-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 20px;
-  color: var(--ink);
-}
-
-.cosmetics-gallery-row {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 8px 2px 12px;
-}
-.cosmetics-hex-card {
-  flex-shrink: 0;
-  width: 104px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-  position: relative;
-}
-.cosmetics-hex-wrap {
-  width: 104px;
-  height: 104px;
-  clip-path: path('M 39.88 9.00 L 20.82 20.00 Q 8.70 27.00 8.70 41.00 L 8.70 63.00 Q 8.70 77.00 20.82 84.00 L 39.88 95.00 Q 52.00 102.00 64.12 95.00 L 83.18 84.00 Q 95.30 77.00 95.30 63.00 L 95.30 41.00 Q 95.30 27.00 83.18 20.00 L 64.12 9.00 Q 52.00 2.00 39.88 9.00 Z');
-  background: var(--accent, var(--amber));
-  padding: 3px;
-  filter: drop-shadow(0 0 8px var(--accent, var(--amber)));
-}
-.cosmetics-hex-inner {
-  width: 98px;
-  height: 98px;
-  clip-path: path('M 37.74 9.50 L 20.42 19.50 Q 9.16 26.00 9.16 39.00 L 9.16 59.00 Q 9.16 72.00 20.42 78.50 L 37.74 88.50 Q 49.00 95.00 60.26 88.50 L 77.58 78.50 Q 88.84 72.00 88.84 59.00 L 88.84 39.00 Q 88.84 26.00 77.58 19.50 L 60.26 9.50 Q 49.00 3.00 37.74 9.50 Z');
-}
-.cosmetics-equipped-flag {
-  position: absolute;
-  top: 80px;
-  background: var(--panel);
-  border: 1px solid var(--amber);
-  color: var(--amber);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.profile-hex-panel {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  background: var(--panel);
-  border-radius: var(--radius-cart);
-  padding: 24px 20px;
-  margin-top: 20px;
-  border: 1px solid var(--line);
-}
-.profile-hex-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-cart);
-  padding: 2px;
-  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.shop-item-glow {
-  position: relative;
-  overflow: hidden;
-}
-.shop-item-glow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-sm);
-  padding: 2px;
-  background: linear-gradient(135deg, var(--accent, var(--amber)), var(--plum));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0.9;
-}
-
-/* Sharper hex badges + true wrap-around gradient border */
-.profile-hex-panel::before {
-  background: conic-gradient(from 180deg at 50% 50%, var(--amber), var(--ember), var(--sage), var(--plum), var(--amber));
-}
-
-.profile-hex-badge {
-  padding: 5px;
-  filter: drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 10px var(--accent, var(--amber)));
-}
-.profile-hex-badge-inner {
-  background: var(--ink);
-}
-.profile-hex-value {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-/* Extra hex edge sharpness — no shape change, only stroke + shadow tuning */
-.profile-hex-badge {
-  padding: 6px;
-  filter: drop-shadow(0 0 0.5px var(--accent, var(--amber))) drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 8px var(--accent, var(--amber)));
-}
-
-/* Extra hex edge sharpness — no shape change, only stroke + shadow tuning */
-.profile-hex-badge {
-  padding: 6px;
-  filter: drop-shadow(0 0 0.5px var(--accent, var(--amber))) drop-shadow(0 0 1px var(--accent, var(--amber))) drop-shadow(0 0 8px var(--accent, var(--amber)));
-}
-
-/* RESTORE — exactly this state, no further changes */
-.profile-hex-panel::before {
-  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage)) !important;
-}
-.profile-hex-badge {
-  padding: 3px !important;
-  filter: drop-shadow(0 0 8px var(--accent, var(--amber))) !important;
-}
-.profile-hex-badge-inner {
-  background: var(--panel) !important;
-}
-.profile-hex-value {
-  font-size: 13px !important;
-  font-weight: 400 !important;
 }
