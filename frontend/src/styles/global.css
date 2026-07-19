@@ -1047,3 +1047,9 @@ footer.site-footer {
 .shop-item.shop-item-glow::before {
   background: conic-gradient(from 45deg, var(--accent, var(--amber)), var(--amber), var(--sage), var(--accent, var(--amber))) !important;
 }
+
+/* Restore original colored left-border on player card (matches equipped skin) */
+.player-card-preview {
+  border-color: var(--line) !important;
+  border-left: 4px solid var(--skin, var(--amber)) !important;
+}
