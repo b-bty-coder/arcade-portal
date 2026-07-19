@@ -936,3 +936,17 @@ footer.site-footer {
   font-size: 13px !important;
   font-weight: 400 !important;
 }
+
+.profile-hex-panel {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border-radius: var(--radius-cart);
+  padding: 24px 20px;
+  margin-top: 20px;
+  border: 1px solid var(--line);
+}
