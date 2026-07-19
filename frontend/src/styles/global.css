@@ -950,3 +950,16 @@ footer.site-footer {
   margin-top: 20px;
   border: 1px solid var(--line);
 }
+
+.profile-hex-panel::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: var(--radius-cart) !important;
+  padding: 2px !important;
+  background: linear-gradient(120deg, var(--amber), var(--plum), var(--sage)) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+}
