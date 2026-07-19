@@ -17,7 +17,7 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState('ready'); // ready | playing | over
+  const [status, setStatus] = useState('ready'); // ready | playing | paused | over
 
   function reset() {
     const snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
@@ -29,6 +29,17 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
     };
     setScore(0);
     setStatus('playing');
+  }
+
+  function togglePause() {
+    setStatus((prev) => (prev === 'playing' ? 'paused' : prev === 'paused' ? 'playing' : prev));
+  }
+
+  function setDirection(next) {
+    const s = stateRef.current;
+    if (!s || status !== 'playing') return;
+    if (next.x === -s.dir.x && next.y === -s.dir.y) return;
+    s.nextDir = next;
   }
 
   useEffect(() => {
@@ -43,11 +54,9 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
       ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
       if (!s) return;
 
-      // food
       ctx.fillStyle = '#e4572e';
       ctx.fillRect(s.food.x * CELL + 2, s.food.y * CELL + 2, CELL - 4, CELL - 4);
 
-      // snake
       s.snake.forEach((seg, i) => {
         ctx.fillStyle = i === 0 ? '#f2c14e' : '#66a182';
         ctx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
@@ -91,8 +100,11 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
 
   useEffect(() => {
     function handleKey(e) {
-      const s = stateRef.current;
-      if (!s) return;
+      if (e.key === ' ' || e.key === 'Escape') {
+        e.preventDefault();
+        togglePause();
+        return;
+      }
       const map = {
         ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
         ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 },
@@ -102,15 +114,13 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
       const next = map[e.key];
       if (!next) return;
       e.preventDefault();
-      // prevent reversing directly into yourself
-      if (next.x === -s.dir.x && next.y === -s.dir.y) return;
-      s.nextDir = next;
+      setDirection(next);
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
-  // basic swipe controls for mobile
   const touchStart = useRef(null);
   function handleTouchStart(e) {
     const t = e.touches[0];
@@ -121,13 +131,11 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
-    const s = stateRef.current;
-    if (!s) return;
+    if (!stateRef.current) return;
     let next;
     if (Math.abs(dx) > Math.abs(dy)) next = { x: dx > 0 ? 1 : -1, y: 0 };
     else next = { x: 0, y: dy > 0 ? 1 : -1 };
-    if (next.x === -s.dir.x && next.y === -s.dir.y) return;
-    s.nextDir = next;
+    setDirection(next);
   }
 
   return (
@@ -135,19 +143,42 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
       <div className="game-hud">
         <span>SCORE: {score}</span>
         <span>BEST: {Math.max(bestScore, score)}</span>
+        {status === 'playing' || status === 'paused' ? (
+          <button className="icon-btn" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
+            {status === 'paused' ? '▶' : '⏸'}
+          </button>
+        ) : null}
       </div>
+
       <div className="game-canvas-container" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />
         {status !== 'playing' && (
           <div className="game-overlay">
             <p className="display-sm" style={{ color: '#f5f0e6' }}>
-              {status === 'over' ? `GAME OVER — SCORE ${score}` : 'ARROW KEYS / SWIPE TO MOVE'}
+              {status === 'over'
+                ? `GAME OVER — SCORE ${score}`
+                : status === 'paused'
+                ? 'PAUSED'
+                : 'ARROW KEYS / SWIPE / D-PAD TO MOVE'}
             </p>
-            <button className="btn btn-primary" onClick={reset}>
-              {status === 'over' ? 'Play again' : 'Start'}
+            <button
+              className="btn btn-primary"
+              onClick={status === 'paused' ? togglePause : reset}
+            >
+              {status === 'over' ? 'Play again' : status === 'paused' ? 'Resume' : 'Start'}
             </button>
           </div>
         )}
+      </div>
+
+      <div className="snake-dpad">
+        <button className="snake-dpad-btn snake-dpad-up" onClick={() => setDirection({ x: 0, y: -1 })} aria-label="Move up">▲</button>
+        <button className="snake-dpad-btn snake-dpad-left" onClick={() => setDirection({ x: -1, y: 0 })} aria-label="Move left">◀</button>
+        <button className="snake-dpad-btn snake-dpad-pause" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
+          {status === 'paused' ? '▶' : '⏸'}
+        </button>
+        <button className="snake-dpad-btn snake-dpad-right" onClick={() => setDirection({ x: 1, y: 0 })} aria-label="Move right">▶</button>
+        <button className="snake-dpad-btn snake-dpad-down" onClick={() => setDirection({ x: 0, y: 1 })} aria-label="Move down">▼</button>
       </div>
     </div>
   );
