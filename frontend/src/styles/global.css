@@ -1180,3 +1180,11 @@ footer.site-footer {
 .game-canvas-container {
   max-width: min(400px, 96vw) !important;
 }
+
+/* Remove game ground borders entirely */
+.game-frame {
+  border: none !important;
+}
+.game-canvas-wrap canvas {
+  border: none !important;
+}
