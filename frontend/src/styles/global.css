@@ -1112,3 +1112,13 @@ footer.site-footer {
 .snake-dpad-btn:focus {
   outline: none !important;
 }
+
+/* Fix fullscreen game layout — stack vertically, full width */
+.game-fullscreen-body {
+  flex-direction: column !important;
+  width: 100% !important;
+}
+.game-fullscreen-body > * {
+  width: 100% !important;
+  max-width: 420px !important;
+}
