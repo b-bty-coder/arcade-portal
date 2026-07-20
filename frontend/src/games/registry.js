@@ -1,5 +1,6 @@
-import Snake from './Snake.jsx';
-import Memory from './Memory.jsx';
+import { lazy } from 'react';
+const Snake = lazy(() => import('./Snake.jsx'));
+const Memory = lazy(() => import('./Memory.jsx'));
 
 export const GAMES = [
   {

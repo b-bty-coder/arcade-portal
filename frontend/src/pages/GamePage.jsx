@@ -1,5 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { getGame } from '../games/registry';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
@@ -60,7 +60,9 @@ export default function GamePage() {
       <div className="game-fullscreen-body">
         <BannerAdSlot label="Pre-game banner ad" />
         <div className="game-frame">
-          <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
+          <Suspense fallback={<div>Loading game…</div>}>
+            <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
+          </Suspense>
         </div>
       </div>
     </div>
