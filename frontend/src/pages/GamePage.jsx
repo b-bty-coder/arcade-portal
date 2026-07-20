@@ -11,7 +11,6 @@ export default function GamePage() {
   const { user } = useAuth();
   const game = getGame(gameId);
   const [bestScore, setBestScore] = useState(0);
-  const [message, setMessage] = useState('');
   const localKey = `progress:${gameId}`;
 
   useEffect(() => {
@@ -38,16 +37,12 @@ export default function GamePage() {
       const newBest = Math.max(bestScore, score);
       setBestScore(newBest);
       await idbSet(localKey, { bestScore: newBest, lastScore: score, updatedAt: Date.now() });
-      if (!user) {
-        setMessage('Log in to save your progress and appear on the leaderboard.');
-        return;
-      }
+      if (!user) return;
       try {
         await api.saveProgress(gameId, { bestScore: newBest, lastScore: score });
-        const res = await api.submitScore(gameId, score);
-        setMessage(res.isNewHighScore ? 'New personal best — leaderboard updated!' : 'Score saved.');
+        await api.submitScore(gameId, score);
       } catch (e) {
-        setMessage(`Couldn't sync to server: ${e.message}`);
+        // silent — fullscreen mode keeps the UI clutter-free, sync just retries next time
       }
     },
     [bestScore, gameId, user, localKey]
@@ -55,22 +50,19 @@ export default function GamePage() {
 
   if (!game) return <Navigate to="/" replace />;
   const GameComponent = game.component;
-  const isVertical = game.orientation !== 'horizontal';
 
   return (
-    <div>
-      <div className="game-page-header" style={{ justifyContent: 'space-between' }}>
+    <div className="game-fullscreen">
+      <div className="game-fullscreen-topbar">
         <Link to="/" className="icon-btn" aria-label="Back to all games">←</Link>
         <Link to={`/leaderboard?game=${game.id}`} className="icon-btn" aria-label="View leaderboard">🏆</Link>
       </div>
-
-      {isVertical && <BannerAdSlot label="Pre-game banner ad" />}
-
-      <div className="game-frame">
-        <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
+      <div className="game-fullscreen-body">
+        <BannerAdSlot label="Pre-game banner ad" />
+        <div className="game-frame">
+          <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
+        </div>
       </div>
-
-      {message && <p className="subtitle" style={{ marginTop: 14 }}>{message}</p>}
     </div>
   );
 }
