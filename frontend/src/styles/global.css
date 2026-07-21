@@ -1145,11 +1145,11 @@ footer.site-footer {
   margin-top: 0 !important;
 }
 .game-canvas-wrap canvas {
-  max-width: min(400px, 96vw) !important;
+  max-width: 100% !important;
   border-width: 1px !important;
 }
 .game-canvas-container {
-  max-width: min(400px, 96vw) !important;
+  max-width: 100% !important;
 }
 
 /* Tighten fullscreen game spacing + enlarge canvas + thinner borders */
@@ -1174,11 +1174,11 @@ footer.site-footer {
   margin-top: 0 !important;
 }
 .game-canvas-wrap canvas {
-  max-width: min(400px, 96vw) !important;
+  max-width: 100% !important;
   border-width: 1px !important;
 }
 .game-canvas-container {
-  max-width: min(400px, 96vw) !important;
+  max-width: 100% !important;
 }
 
 /* Remove game ground borders entirely */
@@ -1188,3 +1188,252 @@ footer.site-footer {
 .game-canvas-wrap canvas {
   border: none !important;
 }
+
+.tetris-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.tetris-hud {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  color: #cfd3e6;
+}
+.tetris-hud-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.tetris-hud-item strong {
+  font-size: 16px;
+  color: var(--tetris-accent, #f0a63a);
+}
+.game-canvas-container {
+  position: relative;
+}
+.game-canvas-wrap canvas {
+  height: auto;
+}
+.tetris-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 11, 20, 0.75);
+  color: #fff;
+  gap: 6px;
+  font-weight: 600;
+}
+.tetris-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.tetris-controls button {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 1px solid var(--tetris-accent, #f0a63a);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  font-size: 20px;
+  touch-action: manipulation;
+}
+.tetris-controls button:active {
+  background: var(--tetris-accent, #f0a63a);
+  color: #12141f;
+}
+
+.game-canvas-wrap canvas {
+  width: 100% !important;
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.game-canvas-wrap,
+.game-canvas-container {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+.game-canvas-wrap canvas {
+  width: 100% !important;
+}
+
+.game-canvas-container {
+  display: block !important;
+}
+
+.game-canvas-wrap canvas {
+  width: auto !important;
+  height: min(56vh, 620px) !important;
+  max-width: 94vw !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.game-canvas-wrap canvas {
+  width: 92vw !important;
+  height: min(56vh, 620px) !important;
+}
+
+.game-frame {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.game-canvas-wrap canvas {
+  width: 100vw !important;
+  height: min(56vh, 620px) !important;
+}
+
+* { box-sizing: border-box; }
+.game-canvas-wrap,
+.game-canvas-container {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  overflow: hidden;
+}
+.game-canvas-wrap canvas {
+  width: 100% !important;
+  height: min(56vh, 620px) !important;
+  display: block !important;
+}
+
+.game-canvas-wrap canvas {
+  height: min(50vh, 560px) !important;
+  width: auto !important;
+  max-width: 96vw !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.game-canvas-wrap canvas {
+  height: min(50vh, 560px) !important;
+  width: auto !important;
+  max-width: 96vw !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.game-fullscreen-topbar {
+  padding: 6px 14px 0 !important;
+  min-height: 0 !important;
+}
+.game-fullscreen-body {
+  gap: 4px !important;
+  padding-top: 0 !important;
+}
+.ad-slot,
+.ad-slot.banner {
+  margin: 4px 0 !important;
+  padding: 6px !important;
+  min-height: 30px !important;
+}
+.tetris-wrap {
+  gap: 4px !important;
+}
+
+.game-fullscreen-topbar {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+.game-fullscreen-body {
+  margin-top: 0 !important;
+  gap: 2px !important;
+}
+.game-fullscreen-body > *:first-child {
+  margin-top: 0 !important;
+}
+.ad-slot.banner {
+  margin-top: 0 !important;
+}
+
+.game-fullscreen {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 4px !important;
+}
+
+.game-fullscreen-body {
+  padding-top: 0 !important;
+  padding: 4px 10px !important;
+}
+
+.game-fullscreen-body {
+  padding-top: 0 !important;
+  padding: 4px 10px !important;
+}
+
+/* ===== FINAL CLEAN LAYOUT — overrides all earlier patches ===== */
+.game-fullscreen {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+.game-fullscreen-topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 8px 14px !important;
+  flex-shrink: 0 !important;
+  gap: 8px !important;
+}
+.game-fullscreen-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 0 10px 10px !important;
+  flex: 1 !important;
+}
+.ad-slot.banner {
+  margin: 0 !important;
+  padding: 8px !important;
+  min-height: 36px !important;
+}
+.game-frame {
+  padding: 6px !important;
+  margin-top: 0 !important;
+}
+.game-canvas-container {
+  position: relative !important;
+  width: 100% !important;
+}
+.game-canvas-wrap canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
+.tetris-controls {
+  margin-top: 8px !important;
+}
+
+.ad-slot.banner {
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.game-canvas-wrap canvas {
+  height: min(48vh, 500px) !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.game-fullscreen-topbar { outline: 2px solid red !important; }
+.game-fullscreen-body { outline: 2px solid lime !important; }
