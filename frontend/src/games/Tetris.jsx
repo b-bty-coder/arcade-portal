@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const CELL = 34;
+const CELL = 24;
 
 const PIECES = {
   I: { matrix: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], color: '#4dd9e8' },
@@ -115,7 +115,6 @@ function makePrefill(cols, rows, rowsToFill) {
 
 export default function Tetris({ onGameOver, bestScore }) {
   const canvasRef = useRef(null);
-  const wrapRef = useRef(null);
   const boardRef = useRef(null);
   const pieceRef = useRef(null);
   const bagRef = useRef([]);
@@ -382,35 +381,27 @@ export default function Tetris({ onGameOver, bestScore }) {
     };
   }, [gameOver, moveLeft, moveRight, tryRotate, hardDrop]);
 
-  useEffect(() => {
-    function resize() {
-      const el = wrapRef.current;
-      const canvas = canvasRef.current;
-      if (!el || !canvas) return;
-      const width = el.clientWidth;
-      const cellSize = Math.max(8, Math.floor(width / config.cols));
-      canvas.width = cellSize * config.cols;
-      canvas.height = cellSize * config.rows;
-    }
-    resize();
-    const ro = new ResizeObserver(resize);
-    if (wrapRef.current) ro.observe(wrapRef.current);
-    return () => ro.disconnect();
-  }, [config.cols, config.rows]);
+  const canvasWidth = config.cols * CELL;
+  const canvasHeight = config.rows * CELL;
 
   return (
-    <div className="tetris-wrap" style={{ '--tetris-accent': config.accent }}>
-      <div className="tetris-hud">
-        <div className="tetris-hud-item"><span>Level</span><strong>{levelIdx + 1}</strong></div>
-        <div className="tetris-hud-item"><span>{config.name}</span></div>
-        <div className="tetris-hud-item"><span>Score</span><strong>{score}</strong></div>
-        <div className="tetris-hud-item"><span>Best</span><strong>{Math.max(bestScore, score)}</strong></div>
+    <div className="tetris-shell">
+      <div className="game-header">
+        <div className="stat"><span>Level</span><div className="value">{levelIdx + 1}</div></div>
+        <div className="stat"><span>{config.name}</span></div>
+        <div className="stat"><span>Score</span><div className="value">{score}</div></div>
+        <div className="stat"><span>Best</span><div className="value">{Math.max(bestScore, score)}</div></div>
       </div>
 
-      <div className="game-canvas-wrap">
-        <div className="game-canvas-container" ref={wrapRef} style={{ borderColor: config.accent }}>
+      <div className="canvas-container">
+        <div
+          className="canvas-wrapper"
+          style={{ aspectRatio: `${config.cols} / ${config.rows}`, '--tetris-accent': config.accent }}
+        >
           <canvas
             ref={canvasRef}
+            width={canvasWidth}
+            height={canvasHeight}
             style={{ touchAction: 'none' }}
             onPointerDown={onCanvasPointerDown}
             onPointerMove={onCanvasPointerMove}
@@ -430,17 +421,17 @@ export default function Tetris({ onGameOver, bestScore }) {
         </div>
       </div>
 
-      <div className="tetris-controls">
-        <button onPointerDown={moveLeft} aria-label="Move left">◀</button>
-        <button onPointerDown={tryRotate} aria-label="Rotate">⟳</button>
+      <div className="game-controls-grid">
+        <button onPointerDown={moveLeft} aria-label="Move left"><div className="btn-inner">◄</div></button>
+        <button onPointerDown={tryRotate} aria-label="Rotate"><div className="btn-inner">⟳</div></button>
         <button
           onPointerDown={() => { softDropRef.current = true; }}
           onPointerUp={() => { softDropRef.current = false; }}
           onPointerLeave={() => { softDropRef.current = false; }}
           aria-label="Soft drop"
-        >▼</button>
-        <button onPointerDown={hardDrop} aria-label="Hard drop">⤓</button>
-        <button onPointerDown={moveRight} aria-label="Move right">▶</button>
+        ><div className="btn-inner">▼</div></button>
+        <button onPointerDown={hardDrop} aria-label="Hard drop"><div className="btn-inner">↓</div></button>
+        <button onPointerDown={moveRight} aria-label="Move right"><div className="btn-inner">►</div></button>
       </div>
     </div>
   );

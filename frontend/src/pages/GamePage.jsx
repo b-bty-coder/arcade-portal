@@ -1,13 +1,13 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { getGame } from '../games/registry';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { idbGet, idbSet } from '../lib/idb';
-import { BannerAdSlot } from '../components/AdSlot';
 
 export default function GamePage() {
   const { gameId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const game = getGame(gameId);
   const [bestScore, setBestScore] = useState(0);
@@ -42,7 +42,7 @@ export default function GamePage() {
         await api.saveProgress(gameId, { bestScore: newBest, lastScore: score });
         await api.submitScore(gameId, score);
       } catch (e) {
-        // silent — fullscreen mode keeps the UI clutter-free, sync just retries next time
+        // silent — sync just retries next time
       }
     },
     [bestScore, gameId, user, localKey]
@@ -52,15 +52,21 @@ export default function GamePage() {
   const GameComponent = game.component;
 
   return (
-    <div className="game-fullscreen">
-      <div className="game-fullscreen-topbar">
-        <Link to="/" className="icon-btn" aria-label="Back to all games">←</Link>
-        <Link to={`/leaderboard?game=${game.id}`} className="icon-btn" aria-label="View leaderboard">🏆</Link>
-      </div>
-      <div className="game-fullscreen-body">
-        <BannerAdSlot label="Pre-game banner ad" />
-        <div className="game-frame">
-          <Suspense fallback={<div>Loading game…</div>}>
+    <div className="game-box">
+      <div className="game-wrapper">
+        <div className="game-inner">
+          <button className="back-btn" onClick={() => navigate('/')} aria-label="Back to all games">
+            <div className="back-btn-inner">←</div>
+          </button>
+          <Link
+            to={`/leaderboard?game=${game.id}`}
+            className="back-btn back-btn-right"
+            aria-label="View leaderboard"
+          >
+            <div className="back-btn-inner">🏆</div>
+          </Link>
+
+          <Suspense fallback={<div style={{ textAlign: 'center', padding: 20 }}>Loading game…</div>}>
             <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
           </Suspense>
         </div>
