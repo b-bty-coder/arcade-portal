@@ -25,11 +25,10 @@ export default function Leaderboard() {
     <div style={{ padding: '24px 0' }}>
       <p className="eyebrow">Hall of fame</p>
       <h1 className="display-xl">Leaderboard</h1>
-
       <div className="nav-links" style={{ margin: '20px 0' }}>
         <button
           className={`nav-link ${activeGame === 'global' ? 'active' : ''}`}
-          onClick={() => setParams({ game: 'global' })}
+          onClick={() => setParams({ game: 'global' }, { replace: true })}
         >
           Global
         </button>
@@ -37,16 +36,14 @@ export default function Leaderboard() {
           <button
             key={g.id}
             className={`nav-link ${activeGame === g.id ? 'active' : ''}`}
-            onClick={() => setParams({ game: g.id })}
+            onClick={() => setParams({ game: g.id }, { replace: true })}
           >
             {g.title}
           </button>
         ))}
       </div>
-
       {loading && <p className="subtitle">Loading scores…</p>}
       {!loading && rows.length === 0 && <p className="subtitle">No scores yet — be the first to play!</p>}
-
       {rows.map((row, i) => (
         <div key={i} className={`leader-row ${i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : ''}`}>
           <span className="rank">#{i + 1}</span>
