@@ -1,14 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-
 const ICONS = ['🕹️', '👾', '🎮', '🧩', '🚀', '⭐', '🍄', '🔥'];
-
 function buildDeck() {
   const deck = [...ICONS, ...ICONS]
     .map((icon, i) => ({ id: i, icon, flipped: false, matched: false }))
     .sort(() => Math.random() - 0.5);
   return deck;
 }
-
 export default function Memory({ onGameOver, bestScore = 0 }) {
   const [deck, setDeck] = useState(buildDeck);
   const [selected, setSelected] = useState([]);
@@ -17,7 +14,6 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
   const [status, setStatus] = useState('ready');
   const [finalScore, setFinalScore] = useState(0);
   const lockRef = useRef(false);
-
   function reset() {
     setDeck(buildDeck());
     setSelected([]);
@@ -26,24 +22,20 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
     setStatus('playing');
     lockRef.current = false;
   }
-
   function handleFlip(card) {
     if (status !== 'playing' || lockRef.current) return;
     if (card.flipped || card.matched) return;
     if (selected.length === 2) return;
-
     const updated = deck.map((c) => (c.id === card.id ? { ...c, flipped: true } : c));
     const newSelected = [...selected, card.id];
     setDeck(updated);
     setSelected(newSelected);
-
     if (newSelected.length === 2) {
       lockRef.current = true;
       setMoves((m) => m + 1);
       const [aId, bId] = newSelected;
       const a = updated.find((c) => c.id === aId);
       const b = updated.find((c) => c.id === bId);
-
       setTimeout(() => {
         setDeck((prev) => {
           const isMatch = a.icon === b.icon;
@@ -68,41 +60,45 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
       }, 650);
     }
   }
-
   return (
-    <div className="game-canvas-wrap">
-      <div className="game-hud">
-        <span>MOVES: {moves}</span>
-        <span>BEST: {bestScore}</span>
+    <div className="tetris-shell">
+      <div className="game-header">
+        <div className="stat"><span>Moves</span><div className="value">{moves}</div></div>
+        <div className="stat"><span>Best</span><div className="value">{bestScore}</div></div>
       </div>
-      <div className="game-canvas-container">
-        <div
-          className="memory-board"
-          style={{
-            opacity: status === 'playing' ? 1 : 0.3,
-            pointerEvents: status === 'playing' ? 'auto' : 'none',
-          }}
-        >
-          {deck.map((card) => (
-            <button
-              key={card.id}
-              onClick={() => handleFlip(card)}
-              className={card.flipped || card.matched ? '' : 'face-down'}
-            >
-              {card.flipped || card.matched ? card.icon : '❓'}
-            </button>
-          ))}
-        </div>
-        {status !== 'playing' && (
-          <div className="game-overlay">
-            <p className="display-sm" style={{ color: '#f5f0e6' }}>
-              {status === 'over' ? `SOLVED — SCORE ${finalScore}` : 'MATCH THE PAIRS'}
-            </p>
-            <button className="btn btn-primary" onClick={reset}>
-              {status === 'over' ? 'Play again' : 'Start'}
-            </button>
+
+      <div className="canvas-container">
+        <div className="canvas-wrapper" style={{ aspectRatio: '1 / 1', width: '100%', height: 'auto', maxHeight: '100%', background: 'transparent' }}>
+          <div
+            className="memory-board"
+            style={{
+              opacity: status === 'playing' ? 1 : 0.3,
+              pointerEvents: status === 'playing' ? 'auto' : 'none',
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            {deck.map((card) => (
+              <button
+                key={card.id}
+                onClick={() => handleFlip(card)}
+                className={card.flipped || card.matched ? '' : 'face-down'}
+              >
+                {card.flipped || card.matched ? card.icon : '❓'}
+              </button>
+            ))}
           </div>
-        )}
+          {status !== 'playing' && (
+            <div className="game-overlay">
+              <p className="display-sm" style={{ color: '#f5f0e6' }}>
+                {status === 'over' ? `SOLVED — SCORE ${finalScore}` : 'MATCH THE PAIRS'}
+              </p>
+              <button className="btn btn-primary" onClick={reset}>
+                {status === 'over' ? 'Play again' : 'Start'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

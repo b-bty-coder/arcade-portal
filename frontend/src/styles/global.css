@@ -1823,3 +1823,11 @@ footer.site-footer {
   padding-left: 44px !important;
   padding-right: 44px !important;
 }
+
+/* Fix "Most Popular" badge getting clipped by shop card's rounded border */
+.shop-item {
+  overflow: visible !important;
+}
+.popular-tag {
+  z-index: 2 !important;
+}
