@@ -26,7 +26,7 @@ export const GAMES = [
     title: 'Tetris',
     description: 'Ten themed levels — each one changes speed, size, visibility, or controls.',
     accent: 'var(--amber)',
-    thumbnail: '/thumbnails/tetris.png',
+    thumbnail: '/thumbnails/tetris.svg',
     component: Tetris,
   },
 ];

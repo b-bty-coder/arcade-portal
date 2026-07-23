@@ -179,7 +179,13 @@ export default function Tetris({ onGameOver, bestScore }) {
         return nl;
       });
     }
-    pieceRef.current = spawnNext();
+    let next = spawnNext();
+    while (next && collides(boardRef.current, next, config.rows, config.cols, 1, 0)) {
+      mergePiece(boardRef.current, next);
+      clearLines(boardRef.current, config.cols);
+      next = spawnNext();
+    }
+    pieceRef.current = next;
   }, [config.cols, levelIdx, spawnNext]);
 
   const tryMove = useCallback((dr, dc) => {
@@ -381,6 +387,18 @@ export default function Tetris({ onGameOver, bestScore }) {
     };
   }, [gameOver, moveLeft, moveRight, tryRotate, hardDrop]);
 
+  const restart = useCallback(() => {
+    setScore(0);
+    setLines(0);
+    setGameOver(false);
+    setPaused(false);
+    if (levelIdx === 0) {
+      resetForLevel();
+    } else {
+      setLevelIdx(0);
+    }
+  }, [levelIdx, resetForLevel]);
+
   const canvasWidth = config.cols * CELL;
   const canvasHeight = config.rows * CELL;
 
@@ -411,6 +429,7 @@ export default function Tetris({ onGameOver, bestScore }) {
             <div className="tetris-overlay">
               <p>Game Over</p>
               <span>Score: {score}</span>
+              <button className="btn btn-primary" onClick={restart}>Play again</button>
             </div>
           )}
           {paused && !gameOver && (
