@@ -15,7 +15,9 @@ function randomCell(exclude) {
 
 export default function Snake({ onGameOver, bestScore = 0 }) {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const stateRef = useRef(null);
+  const [squareSize, setSquareSize] = useState(0);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState('ready'); // ready | playing | paused | over
 
@@ -41,6 +43,22 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
     if (next.x === -s.dir.x && next.y === -s.dir.y) return;
     s.nextDir = next;
   }
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    function measure() {
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      setSquareSize(Math.max(0, Math.min(w, h)));
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -139,36 +157,45 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
   }
 
   return (
-    <div className="game-canvas-wrap">
-      <div className="game-hud">
-        <span>SCORE: {score}</span>
-        <span>BEST: {Math.max(bestScore, score)}</span>
-        {status === 'playing' || status === 'paused' ? (
-          <button className="icon-btn" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
-            {status === 'paused' ? '▶' : '⏸'}
-          </button>
-        ) : null}
-      </div>
-
-      <div className="game-canvas-container" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />
-        {status !== 'playing' && (
-          <div className="game-overlay">
-            <p className="display-sm" style={{ color: '#f5f0e6' }}>
-              {status === 'over'
-                ? `GAME OVER — SCORE ${score}`
-                : status === 'paused'
-                ? 'PAUSED'
-                : 'ARROW KEYS / SWIPE / D-PAD TO MOVE'}
-            </p>
-            <button
-              className="btn btn-primary"
-              onClick={status === 'paused' ? togglePause : reset}
-            >
-              {status === 'over' ? 'Play again' : status === 'paused' ? 'Resume' : 'Start'}
+    <div className="tetris-shell">
+      <div className="game-header">
+        <div className="stat"><span>Score</span><div className="value">{score}</div></div>
+        <div className="stat"><span>Best</span><div className="value">{Math.max(bestScore, score)}</div></div>
+        {(status === 'playing' || status === 'paused') && (
+          <div className="stat">
+            <button className="icon-btn" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
+              {status === 'paused' ? '▶' : '⏸'}
             </button>
           </div>
         )}
+      </div>
+
+      <div className="canvas-container" ref={containerRef}>
+        <div
+          className="canvas-wrapper"
+          style={{ width: squareSize || '100%', height: squareSize || '100%' }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />
+          {status !== 'playing' && (
+            <div className="game-overlay">
+              <p className="display-sm" style={{ color: '#f5f0e6' }}>
+                {status === 'over'
+                  ? `GAME OVER — SCORE ${score}`
+                  : status === 'paused'
+                  ? 'PAUSED'
+                  : 'ARROW KEYS / SWIPE / D-PAD TO MOVE'}
+              </p>
+              <button
+                className="btn btn-primary"
+                onClick={status === 'paused' ? togglePause : reset}
+              >
+                {status === 'over' ? 'Play again' : status === 'paused' ? 'Resume' : 'Start'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="snake-dpad">

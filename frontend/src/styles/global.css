@@ -1840,3 +1840,30 @@ footer.site-footer {
   width: 100% !important;
   height: 100% !important;
 }
+
+.canvas-wrapper {
+  border: 2px solid var(--tetris-accent, #f0a63a) !important;
+}
+
+.snake-dpad {
+  grid-template-columns: repeat(3, 68px) !important;
+  grid-template-rows: repeat(3, 68px) !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+}
+.snake-dpad-btn {
+  font-size: 26px !important;
+}
+
+.snake-dpad {
+  margin-bottom: 20px !important;
+}
+
+.game-box {
+  overscroll-behavior: none !important;
+  touch-action: none !important;
+}
+.canvas-wrapper {
+  touch-action: none !important;
+}
