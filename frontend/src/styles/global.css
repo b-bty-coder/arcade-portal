@@ -1831,3 +1831,12 @@ footer.site-footer {
 .popular-tag {
   z-index: 2 !important;
 }
+
+.canvas-wrapper {
+  max-width: 100% !important;
+}
+.memory-board {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+}
