@@ -55,7 +55,7 @@ export default function GamePage() {
     <div className="game-box">
       <div className="game-wrapper">
         <div className="game-inner">
-          <button className="back-btn" onClick={() => navigate('/')} aria-label="Back to all games">
+          <button className="back-btn" onClick={() => (window.history.length > 2 ? navigate(-1) : navigate('/', { replace: true }))} aria-label="Back to all games">
             <div className="back-btn-inner">←</div>
           </button>
           <Link
