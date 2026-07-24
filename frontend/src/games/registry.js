@@ -3,6 +3,7 @@ import { lazy } from 'react';
 const Snake = lazy(() => import('./Snake.jsx'));
 const Memory = lazy(() => import('./Memory.jsx'));
 const Tetris = lazy(() => import('./Tetris.jsx'));
+const Game2048 = lazy(() => import('./Game2048.jsx'));
 
 export const GAMES = [
   {
@@ -28,6 +29,14 @@ export const GAMES = [
     accent: 'var(--amber)',
     thumbnail: '/thumbnails/tetris.svg',
     component: Tetris,
+  },
+  {
+    id: '2048',
+    title: '2048',
+    description: 'Swipe to merge tiles and reach 2048.',
+    accent: 'var(--plum)',
+    thumbnail: '/thumbnails/2048.svg',
+    component: Game2048,
   },
 ];
 

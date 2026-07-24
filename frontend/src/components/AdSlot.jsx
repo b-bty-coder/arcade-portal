@@ -33,3 +33,18 @@ export function RewardedAdSlot({ onRewardClaim, rewardLabel = '+20 coins' }) {
     </div>
   );
 }
+
+export function InterstitialAdSlot({ onClose, label = 'Interstitial ad' }) {
+  return (
+    <div className="interstitial-overlay">
+      <div className="interstitial-card">
+        <p style={{ margin: '0 0 16px' }}>
+          [{label} — swap for real AdSense/AdMob interstitial unit here]
+        </p>
+        <button className="btn btn-primary" onClick={onClose}>
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+}
