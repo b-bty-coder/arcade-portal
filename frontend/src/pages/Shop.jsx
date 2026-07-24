@@ -2,16 +2,15 @@ import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { getRarityColor } from '../lib/cosmetics';
-import { RewardedAdSlot } from '../components/AdSlot';
 
 export default function Shop() {
   const { user, inventory, refreshProfile } = useAuth();
   const [items, setItems] = useState([]);
   const [equippedCounts, setEquippedCounts] = useState({ skins: {}, frames: {} });
   const [busyId, setBusyId] = useState(null);
-  const [adRewardBusy, setAdRewardBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [expanded, setExpanded] = useState({ skin: false, frame: false });
 
   useEffect(() => {
     api.getShopItems().then((res) => setItems(res.items));
@@ -75,22 +74,6 @@ export default function Shop() {
     }
   }
 
-  async function claimAdReward() {
-    if (!user) { setMessage('Log in to earn coins from rewarded ads.'); return; }
-    setError('');
-    setMessage('');
-    setAdRewardBusy(true);
-    try {
-      const res = await api.claimAdReward();
-      await refreshProfile();
-      setMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setAdRewardBusy(false);
-    }
-  }
-
   if (!user) {
     return (
       <div style={{ padding: '48px 0' }}>
@@ -109,21 +92,29 @@ export default function Shop() {
       <h1 className="display-xl">Shop</h1>
       <p className="subtitle">You have <strong style={{ color: 'var(--amber)' }}>🪙 {user.coins}</strong> coins.</p>
 
-      <div style={{ marginTop: 10, marginBottom: 4 }}>
-        <RewardedAdSlot onRewardClaim={claimAdReward} rewardLabel="+20 coins" />
-        {adRewardBusy && <p className="eyebrow">Claiming reward…</p>}
-      </div>
-
       {error && <p className="error-text">{error}</p>}
       {message && <p className="subtitle" style={{ color: 'var(--sage)' }}>{message}</p>}
 
       {['skin', 'frame'].map((type) => {
         const mostPopularId = getMostPopularId(type);
+        const typeItems = items.filter((i) => i.type === type);
+        const isExpanded = expanded[type];
+
         return (
           <div key={type} style={{ marginTop: 28 }}>
-            <h2 className="display-sm">{type === 'skin' ? 'CARTRIDGE SKINS' : 'PROFILE FRAMES'}</h2>
-            <div className="shop-grid">
-              {items.filter((i) => i.type === type).map((item) => {
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+              <h2 className="display-sm">{type === 'skin' ? 'CARTRIDGE SKINS' : 'PROFILE FRAMES'}</h2>
+              <button
+                className="btn btn-ghost"
+                style={{ padding: '6px 12px', fontSize: 12 }}
+                onClick={() => setExpanded((prev) => ({ ...prev, [type]: !prev[type] }))}
+              >
+                {isExpanded ? 'Show less' : 'View all'}
+              </button>
+            </div>
+
+            <div className={isExpanded ? 'shop-grid' : 'shop-scroll-row'}>
+              {typeItems.map((item) => {
                 const isOwned = owned.has(item.id);
                 const isEquipped = equippedIds.includes(item.id);
                 const rarityColor = getRarityColor(item.rarity);
@@ -133,7 +124,11 @@ export default function Shop() {
                   : item.cost;
 
                 return (
-                  <div key={item.id} className="shop-item shop-item-glow" style={{ '--accent': item.preview, position: 'relative' }}>
+                  <div
+                    key={item.id}
+                    className={isExpanded ? 'shop-item' : 'shop-item shop-item-scroll'}
+                    style={{ borderColor: rarityColor, position: 'relative' }}
+                  >
                     {item.id === mostPopularId && (
                       <span className="popular-tag">🔥 Most Popular</span>
                     )}
