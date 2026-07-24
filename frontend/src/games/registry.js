@@ -4,6 +4,7 @@ const Snake = lazy(() => import('./Snake.jsx'));
 const Memory = lazy(() => import('./Memory.jsx'));
 const Tetris = lazy(() => import('./Tetris.jsx'));
 const Game2048 = lazy(() => import('./Game2048.jsx'));
+const FlappyBird = lazy(() => import('./FlappyBird.jsx'));
 
 export const GAMES = [
   {
@@ -37,6 +38,14 @@ export const GAMES = [
     accent: 'var(--plum)',
     thumbnail: '/thumbnails/2048.svg',
     component: Game2048,
+  },
+  {
+    id: 'flappy',
+    title: 'Flappy Bird',
+    description: 'Tap to flap, dodge the pipes, beat your best score.',
+    accent: 'var(--sage)',
+    thumbnail: '/thumbnails/flappy.svg',
+    component: FlappyBird,
   },
 ];
 
