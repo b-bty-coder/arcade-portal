@@ -1,9 +1,9 @@
-cat > ~/arcade-portal/frontend/src/pages/Shop.jsx << 'ENDOFFILE'
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { getRarityColor } from '../lib/cosmetics';
+import { RewardedAdSlot } from '../components/AdSlot';
 
 export default function Shop() {
   const { user, inventory, refreshProfile } = useAuth();
@@ -12,6 +12,7 @@ export default function Shop() {
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [adRewardBusy, setAdRewardBusy] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const expandedType = searchParams.get('view'); // 'skin' | 'frame' | null
@@ -41,6 +42,20 @@ export default function Shop() {
 
   function goBack() {
     navigate(-1); // same as pressing device back
+  }
+
+  async function claimAdReward() {
+    if (!user) { setMessage('Log in to earn coins from rewarded ads.'); return; }
+    setAdRewardBusy(true);
+    try {
+      const res = await api.claimAdReward();
+      await refreshProfile();
+      setMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
+    } catch (e) {
+      setMessage(e.message);
+    } finally {
+      setAdRewardBusy(false);
+    }
   }
 
   async function handleBuy(item) {
@@ -175,6 +190,13 @@ export default function Shop() {
       <p className="eyebrow">Cosmetics only — nothing here is pay-to-win</p>
       <h1 className="display-xl">Shop</h1>
       <p className="subtitle">You have <strong style={{ color: 'var(--amber)' }}>🪙 {user.coins}</strong> coins.</p>
+
+      {!expandedType && (
+        <>
+          <RewardedAdSlot onRewardClaim={claimAdReward} rewardLabel="+20 coins" />
+          {adRewardBusy && <p className="eyebrow">Claiming reward…</p>}
+        </>
+      )}
 
       {error && <p className="error-text">{error}</p>}
       {message && <p className="subtitle" style={{ color: 'var(--sage)' }}>{message}</p>}
