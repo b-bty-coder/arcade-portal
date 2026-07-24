@@ -2037,3 +2037,17 @@ footer.site-footer {
   width: 150px;
   scroll-snap-align: start;
 }
+
+.shop-scroll-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 12px 2px 8px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.shop-item-scroll {
+  flex: 0 0 auto;
+  width: 150px;
+  scroll-snap-align: start;
+}

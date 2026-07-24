@@ -1,3 +1,4 @@
+cat > ~/arcade-portal/frontend/src/pages/Shop.jsx << 'ENDOFFILE'
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
