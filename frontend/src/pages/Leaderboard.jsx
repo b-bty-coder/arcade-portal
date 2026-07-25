@@ -27,8 +27,17 @@ export default function Leaderboard() {
   const filteredOptions = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return ALL_OPTIONS;
-    return ALL_OPTIONS.filter((g) => g.title.toLowerCase().includes(q));
-  }, [query]);
+    const matches = ALL_OPTIONS.filter((g) => g.title.toLowerCase().includes(q));
+    // Always keep the currently active game in the list so the <select>
+    // never silently falls back to a different option (and a stale
+    // activeGame) just because it doesn't match the search text.
+    const activeStillIncluded = matches.some((g) => g.id === activeGame);
+    if (!activeStillIncluded) {
+      const current = ALL_OPTIONS.find((g) => g.id === activeGame);
+      if (current) return [current, ...matches];
+    }
+    return matches;
+  }, [query, activeGame]);
 
   function selectGame(id) {
     setParams({ game: id }, { replace: true });
