@@ -72,6 +72,8 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 function publicUser(u) {
+  const today = new Date().toISOString().slice(0, 10);
+  const discountAdsToday = u.discount_ads_date === today ? u.discount_ads_today : 0;
   return {
     id: u.id,
     username: u.username,
@@ -83,6 +85,7 @@ function publicUser(u) {
     equippedFrame: u.equipped_frame,
     discountItemId: u.discount_item_id,
     discountPct: u.discount_pct,
+    discountAdsRemainingToday: MAX_DISCOUNT_ADS_PER_DAY - discountAdsToday,
   };
 }
 

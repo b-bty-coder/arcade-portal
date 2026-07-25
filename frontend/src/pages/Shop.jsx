@@ -14,6 +14,7 @@ export default function Shop() {
   const [message, setMessage] = useState('');
   const [adRewardBusy, setAdRewardBusy] = useState(false);
   const [adRewardMessage, setAdRewardMessage] = useState('');
+  const [discountLimitReached, setDiscountLimitReached] = useState(false);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const expandedType = searchParams.get('view'); // 'skin' | 'frame' | null
@@ -22,6 +23,12 @@ export default function Shop() {
     api.getShopItems().then((res) => setItems(res.items));
     api.getEquippedCounts().then(setEquippedCounts).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (user && typeof user.discountAdsRemainingToday === 'number') {
+      setDiscountLimitReached(user.discountAdsRemainingToday <= 0);
+    }
+  }, [user]);
 
   function getMostPopularId(type) {
     const counts = type === 'skin' ? equippedCounts.skins : equippedCounts.frames;
@@ -95,8 +102,10 @@ export default function Shop() {
       const res = await api.watchAdForDiscount(item.id);
       await refreshProfile();
       setMessage(`${res.discountPct}% off "${item.name}" unlocked! (${res.remainingToday} discount-ads left today)`);
+      if (res.remainingToday <= 0) setDiscountLimitReached(true);
     } catch (e) {
       setError(e.message);
+      if (String(e.message).toLowerCase().includes('limit reached')) setDiscountLimitReached(true);
     } finally {
       setBusyId(null);
     }
@@ -171,14 +180,20 @@ export default function Shop() {
               Buy
             </button>
             {!hasDiscount && item.cost > 0 && (
-              <button
-                className="btn btn-ghost"
-                style={{ marginTop: 6, fontSize: 12 }}
-                disabled={busyId === 'ad-' + item.id}
-                onClick={() => handleWatchAdForDiscount(item)}
-              >
-                🎁 Watch ad for 20% off
-              </button>
+              discountLimitReached ? (
+                <p style={{ marginTop: 6, fontSize: 11, color: 'var(--muted)', textAlign: 'center' }}>
+                  🎁 Ad limit reached — resets tomorrow
+                </p>
+              ) : (
+                <button
+                  className="btn btn-ghost"
+                  style={{ marginTop: 6, fontSize: 12 }}
+                  disabled={busyId === 'ad-' + item.id}
+                  onClick={() => handleWatchAdForDiscount(item)}
+                >
+                  🎁 Watch ad for 20% off
+                </button>
+              )
             )}
           </>
         )}
