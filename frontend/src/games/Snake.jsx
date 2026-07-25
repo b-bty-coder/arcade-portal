@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { RewardedAdSlot } from '../components/AdSlot';
 
 const GRID = 18;
 const CELL = 20;
@@ -13,22 +14,24 @@ function randomCell(exclude) {
   return cell;
 }
 
+const START_SNAKE = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
+
 export default function Snake({ onGameOver, bestScore = 0 }) {
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
   const stateRef = useRef(null);
-  const [squareSize, setSquareSize] = useState(0);
+  const hasRevivedRef = useRef(false);
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState('ready'); // ready | playing | paused | over
+  const [status, setStatus] = useState('ready'); // ready | playing | paused | dying | over
 
   function reset() {
-    const snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
+    const snake = [...START_SNAKE];
     stateRef.current = {
       snake,
       dir: { x: 1, y: 0 },
       nextDir: { x: 1, y: 0 },
       food: randomCell(snake),
     };
+    hasRevivedRef.current = false;
     setScore(0);
     setStatus('playing');
   }
@@ -44,21 +47,24 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
     s.nextDir = next;
   }
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    function measure() {
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      setSquareSize(Math.max(0, Math.min(w, h)));
+  function reviveSnake() {
+    const s = stateRef.current;
+    const freshSnake = [...START_SNAKE];
+    s.snake = freshSnake;
+    s.dir = { x: 1, y: 0 };
+    s.nextDir = { x: 1, y: 0 };
+    if (freshSnake.some((seg) => seg.x === s.food.x && seg.y === s.food.y)) {
+      s.food = randomCell(freshSnake);
     }
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    hasRevivedRef.current = true;
+    setStatus('playing');
+  }
 
-
+  function endGameForReal() {
+    const s = stateRef.current;
+    setStatus('over');
+    onGameOver?.(s.snake.length - 3);
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -95,8 +101,11 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
       const hitSelf = s.snake.some((seg) => seg.x === head.x && seg.y === head.y);
 
       if (hitWall || hitSelf) {
-        setStatus('over');
-        onGameOver?.(s.snake.length - 3);
+        if (!hasRevivedRef.current) {
+          setStatus('dying'); // offer "watch ad to continue" before finalizing
+        } else {
+          endGameForReal();
+        }
         draw();
         return;
       }
@@ -157,45 +166,47 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
   }
 
   return (
-    <div className="tetris-shell">
-      <div className="game-header">
-        <div className="stat"><span>Score</span><div className="value">{score}</div></div>
-        <div className="stat"><span>Best</span><div className="value">{Math.max(bestScore, score)}</div></div>
-        {(status === 'playing' || status === 'paused') && (
-          <div className="stat">
-            <button className="icon-btn" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
-              {status === 'paused' ? '▶' : '⏸'}
+    <div className="game-canvas-wrap">
+      <div className="game-hud">
+        <span>SCORE: {score}</span>
+        <span>BEST: {Math.max(bestScore, score)}</span>
+        {status === 'playing' || status === 'paused' ? (
+          <button className="icon-btn" onClick={togglePause} aria-label={status === 'paused' ? 'Resume' : 'Pause'}>
+            {status === 'paused' ? '▶' : '⏸'}
+          </button>
+        ) : null}
+      </div>
+
+      <div className="game-canvas-container" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />
+
+        {status === 'dying' && (
+          <div className="game-overlay">
+            <p className="display-sm" style={{ color: '#f5f0e6' }}>YOU HIT SOMETHING!</p>
+            <RewardedAdSlot onRewardClaim={reviveSnake} rewardLabel="a second chance" />
+            <button className="btn btn-ghost" style={{ marginTop: 10 }} onClick={endGameForReal}>
+              No thanks, end game
             </button>
           </div>
         )}
-      </div>
 
-      <div className="canvas-container" ref={containerRef}>
-        <div
-          className="canvas-wrapper"
-          style={{ width: squareSize || '100%', height: squareSize || '100%' }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} />
-          {status !== 'playing' && (
-            <div className="game-overlay">
-              <p className="display-sm" style={{ color: '#f5f0e6' }}>
-                {status === 'over'
-                  ? `GAME OVER — SCORE ${score}`
-                  : status === 'paused'
-                  ? 'PAUSED'
-                  : 'ARROW KEYS / SWIPE / D-PAD TO MOVE'}
-              </p>
-              <button
-                className="btn btn-primary"
-                onClick={status === 'paused' ? togglePause : reset}
-              >
-                {status === 'over' ? 'Play again' : status === 'paused' ? 'Resume' : 'Start'}
-              </button>
-            </div>
-          )}
-        </div>
+        {status !== 'playing' && status !== 'dying' && (
+          <div className="game-overlay">
+            <p className="display-sm" style={{ color: '#f5f0e6' }}>
+              {status === 'over'
+                ? `GAME OVER — SCORE ${score}`
+                : status === 'paused'
+                ? 'PAUSED'
+                : 'ARROW KEYS / SWIPE / D-PAD TO MOVE'}
+            </p>
+            <button
+              className="btn btn-primary"
+              onClick={status === 'paused' ? togglePause : reset}
+            >
+              {status === 'over' ? 'Play again' : status === 'paused' ? 'Resume' : 'Start'}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="snake-dpad">
