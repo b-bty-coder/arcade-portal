@@ -59,6 +59,27 @@ export default function Leaderboard() {
             onChange={(e) => setQuery(e.target.value)}
             autoComplete="off"
           />
+          {query.trim() && (
+            <div className="leaderboard-suggestions">
+              {filteredOptions.length === 0 && (
+                <div className="leaderboard-suggestion-empty">No games found</div>
+              )}
+              {filteredOptions
+                .filter((g) => g.title.toLowerCase().includes(query.trim().toLowerCase()))
+                .map((g) => (
+                  <button
+                    key={g.id}
+                    className="leaderboard-suggestion"
+                    onClick={() => {
+                      selectGame(g.id);
+                      setQuery('');
+                    }}
+                  >
+                    {g.title}
+                  </button>
+                ))}
+            </div>
+          )}
         </div>
 
         <select
