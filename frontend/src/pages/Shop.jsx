@@ -13,6 +13,7 @@ export default function Shop() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [adRewardBusy, setAdRewardBusy] = useState(false);
+  const [adRewardMessage, setAdRewardMessage] = useState('');
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const expandedType = searchParams.get('view'); // 'skin' | 'frame' | null
@@ -45,14 +46,14 @@ export default function Shop() {
   }
 
   async function claimAdReward() {
-    if (!user) { setMessage('Log in to earn coins from rewarded ads.'); return; }
+    if (!user) { setAdRewardMessage('Log in to earn coins from rewarded ads.'); return; }
     setAdRewardBusy(true);
     try {
       const res = await api.claimAdReward();
       await refreshProfile();
-      setMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
+      setAdRewardMessage(`+${res.coinsAwarded} coins! (${res.remainingToday} rewarded ads left today)`);
     } catch (e) {
-      setMessage(e.message);
+      setAdRewardMessage(e.message);
     } finally {
       setAdRewardBusy(false);
     }
@@ -195,11 +196,13 @@ export default function Shop() {
         <>
           <RewardedAdSlot onRewardClaim={claimAdReward} rewardLabel="+20 coins" />
           {adRewardBusy && <p className="eyebrow">Claiming reward…</p>}
+          {adRewardMessage && (
+            <p className="subtitle" style={{ color: adRewardMessage.includes('limit') ? 'var(--ember)' : 'var(--sage)', marginTop: 8 }}>
+              {adRewardMessage}
+            </p>
+          )}
         </>
       )}
-
-      {error && <p className="error-text">{error}</p>}
-      {message && <p className="subtitle" style={{ color: 'var(--sage)' }}>{message}</p>}
 
       {typesToShow.map((type) => {
         const typeItems = items.filter((i) => i.type === type);
@@ -230,6 +233,13 @@ export default function Shop() {
             <div className={isExpanded ? 'shop-grid' : 'shop-scroll-row'}>
               {typeItems.map((item) => renderCard(item, isExpanded))}
             </div>
+
+            {type === typesToShow[typesToShow.length - 1] && (
+              <>
+                {error && <p className="error-text" style={{ marginTop: 12 }}>{error}</p>}
+                {message && <p className="subtitle" style={{ color: 'var(--sage)', marginTop: 12 }}>{message}</p>}
+              </>
+            )}
           </div>
         );
       })}
