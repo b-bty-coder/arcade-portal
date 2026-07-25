@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { RewardedAdSlot, InterstitialAdSlot } from '../components/AdSlot';
+import { recordFail, recordLevelPassed } from '../lib/adFrequency';
 
 const CELL = 24;
 
@@ -124,12 +126,15 @@ export default function Tetris({ onGameOver, bestScore }) {
   const rafRef = useRef(null);
   const softDropRef = useRef(false);
   const touchRef = useRef(null);
+  const linesRef = useRef(0);
 
   const [levelIdx, setLevelIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [lines, setLines] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [overStage, setOverStage] = useState(null); // null | 'choice' | 'interstitial' | 'final'
+  const [levelInterstitial, setLevelInterstitial] = useState(false);
 
   const config = LEVELS[Math.min(levelIdx, LEVELS.length - 1)];
   const extraSpeedCuts = Math.max(0, Math.floor(lines / 10) - (LEVELS.length - 1));
@@ -172,12 +177,20 @@ export default function Tetris({ onGameOver, bestScore }) {
     if (cleared > 0) {
       const points = [0, 100, 300, 500, 800][cleared] * (levelIdx + 1);
       setScore((s) => s + points);
-      setLines((l) => {
-        const nl = l + cleared;
-        const nextLevelIdx = Math.min(LEVELS.length - 1, Math.floor(nl / 10));
-        if (nextLevelIdx !== levelIdx) setLevelIdx(nextLevelIdx);
-        return nl;
-      });
+
+      const nl = linesRef.current + cleared;
+      linesRef.current = nl;
+      setLines(nl);
+
+      const nextLevelIdx = Math.min(LEVELS.length - 1, Math.floor(nl / 10));
+      if (nextLevelIdx !== levelIdx) {
+        setLevelIdx(nextLevelIdx);
+        const { showInterstitial } = recordLevelPassed();
+        if (showInterstitial) {
+          setPaused(true);
+          setLevelInterstitial(true);
+        }
+      }
     }
     let next = spawnNext();
     while (next && collides(boardRef.current, next, config.rows, config.cols, 1, 0)) {
@@ -266,10 +279,11 @@ export default function Tetris({ onGameOver, bestScore }) {
   }, [tryRotate, hardDrop]);
 
   useEffect(() => {
-    if (gameOver) {
-      onGameOver(score);
-      return;
-    }
+    if (gameOver) setOverStage('choice');
+  }, [gameOver]);
+
+  useEffect(() => {
+    if (gameOver) return;
     function loop(ts) {
       if (!lastTsRef.current) lastTsRef.current = ts;
       const dt = ts - lastTsRef.current;
@@ -389,15 +403,47 @@ export default function Tetris({ onGameOver, bestScore }) {
 
   const restart = useCallback(() => {
     setScore(0);
+    linesRef.current = 0;
     setLines(0);
     setGameOver(false);
     setPaused(false);
+    setOverStage(null);
     if (levelIdx === 0) {
       resetForLevel();
     } else {
       setLevelIdx(0);
     }
   }, [levelIdx, resetForLevel]);
+
+  function handleContinueWithAd() {
+    boardRef.current = emptyBoard(config.cols, config.rows);
+    bagRef.current = [];
+    dropTimerRef.current = 0;
+    garbageTimerRef.current = 0;
+    pieceRef.current = spawnNext();
+    setGameOver(false);
+    setOverStage(null);
+  }
+
+  function declineAdAndMaybeInterstitial() {
+    const { showInterstitial } = recordFail();
+    if (showInterstitial) {
+      setOverStage('interstitial');
+    } else {
+      setOverStage('final');
+      onGameOver(score);
+    }
+  }
+
+  function finishAfterGameOverInterstitial() {
+    setOverStage('final');
+    onGameOver(score);
+  }
+
+  function closeLevelInterstitial() {
+    setLevelInterstitial(false);
+    setPaused(false);
+  }
 
   const canvasWidth = config.cols * CELL;
   const canvasHeight = config.rows * CELL;
@@ -425,14 +471,27 @@ export default function Tetris({ onGameOver, bestScore }) {
             onPointerMove={onCanvasPointerMove}
             onPointerUp={onCanvasPointerUp}
           />
-          {gameOver && (
+
+          {overStage === 'choice' && (
+            <div className="tetris-overlay">
+              <p>Game Over</p>
+              <span>Score: {score}</span>
+              <RewardedAdSlot onRewardClaim={handleContinueWithAd} rewardLabel="one more chance" />
+              <button className="btn btn-ghost" onClick={declineAdAndMaybeInterstitial}>
+                No thanks, restart
+              </button>
+            </div>
+          )}
+
+          {overStage === 'final' && (
             <div className="tetris-overlay">
               <p>Game Over</p>
               <span>Score: {score}</span>
               <button className="btn btn-primary" onClick={restart}>Play again</button>
             </div>
           )}
-          {paused && !gameOver && (
+
+          {paused && !gameOver && !levelInterstitial && (
             <div className="tetris-overlay">
               <p>Paused</p>
             </div>
@@ -452,6 +511,13 @@ export default function Tetris({ onGameOver, bestScore }) {
         <button onPointerDown={hardDrop} aria-label="Hard drop"><div className="btn-inner">↓</div></button>
         <button onPointerDown={moveRight} aria-label="Move right"><div className="btn-inner">►</div></button>
       </div>
+
+      {overStage === 'interstitial' && (
+        <InterstitialAdSlot onClose={finishAfterGameOverInterstitial} />
+      )}
+      {levelInterstitial && (
+        <InterstitialAdSlot onClose={closeLevelInterstitial} label="Level milestone ad" />
+      )}
     </div>
   );
 }

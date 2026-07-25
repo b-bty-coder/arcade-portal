@@ -1,19 +1,16 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { getGame } from '../games/registry';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { idbGet, idbSet } from '../lib/idb';
-import { BannerAdSlot, InterstitialAdSlot } from '../components/AdSlot';
 
 export default function GamePage() {
   const { gameId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const game = getGame(gameId);
   const [bestScore, setBestScore] = useState(0);
-  const [failCount, setFailCount] = useState(0);
-  const [levelPassCount, setLevelPassCount] = useState(0);
-  const [showInterstitial, setShowInterstitial] = useState(false);
   const localKey = `progress:${gameId}`;
 
   useEffect(() => {
@@ -35,65 +32,49 @@ export default function GamePage() {
     return () => { cancelled = true; };
   }, [gameId, user, localKey]);
 
-  // Called only on a FINAL loss (after any revive offer has been used/declined)
   const handleGameOver = useCallback(
     async (score) => {
       const newBest = Math.max(bestScore, score);
       setBestScore(newBest);
       await idbSet(localKey, { bestScore: newBest, lastScore: score, updatedAt: Date.now() });
-      if (user) {
-        try {
-          await api.saveProgress(gameId, { bestScore: newBest, lastScore: score });
-          await api.submitScore(gameId, score);
-        } catch (e) {
-          // silent — fullscreen mode keeps the UI clutter-free, sync just retries next time
-        }
+      if (!user) return;
+      try {
+        await api.saveProgress(gameId, { bestScore: newBest, lastScore: score });
+        await api.submitScore(gameId, score);
+      } catch (e) {
+        // silent — sync just retries next time
       }
-
-      setFailCount((prev) => {
-        const next = prev + 1;
-        if (next % 3 === 0) setShowInterstitial(true);
-        return next;
-      });
     },
     [bestScore, gameId, user, localKey]
   );
-
-  // For future level-based games: call this when a level is cleared
-  const handleLevelComplete = useCallback(() => {
-    setLevelPassCount((prev) => {
-      const next = prev + 1;
-      if (next % 3 === 0) setShowInterstitial(true);
-      return next;
-    });
-  }, []);
 
   if (!game) return <Navigate to="/" replace />;
   const GameComponent = game.component;
 
   return (
-    <div className="game-fullscreen">
-      <div className="game-fullscreen-topbar">
-        <Link to="/" className="icon-btn" aria-label="Back to all games">←</Link>
-        <Link to={`/leaderboard?game=${game.id}`} className="icon-btn" aria-label="View leaderboard">🏆</Link>
-      </div>
-      <div className="game-fullscreen-body">
-        <BannerAdSlot label="Pre-game banner ad" />
-        <div className="game-frame">
-          <GameComponent
-            onGameOver={handleGameOver}
-            onLevelComplete={handleLevelComplete}
-            bestScore={bestScore}
-          />
+    <div className="game-box">
+      <div className="game-wrapper">
+        <div className="game-inner">
+          <button
+            className="back-btn"
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/', { replace: true }))}
+            aria-label="Back to all games"
+          >
+            <div className="back-btn-inner">←</div>
+          </button>
+          <Link
+            to={`/leaderboard?game=${game.id}`}
+            className="back-btn back-btn-right"
+            aria-label="View leaderboard"
+          >
+            <div className="back-btn-inner">🏆</div>
+          </Link>
+
+          <Suspense fallback={<div style={{ textAlign: 'center', padding: 20 }}>Loading game…</div>}>
+            <GameComponent onGameOver={handleGameOver} bestScore={bestScore} />
+          </Suspense>
         </div>
       </div>
-
-      {showInterstitial && (
-        <InterstitialAdSlot
-          label="Ad break"
-          onClose={() => setShowInterstitial(false)}
-        />
-      )}
     </div>
   );
 }
