@@ -7,6 +7,8 @@ function buildDeck() {
   return deck;
 }
 export default function Memory({ onGameOver, bestScore = 0 }) {
+  const containerRef = useRef(null);
+  const [squareSize, setSquareSize] = useState(0);
   const [deck, setDeck] = useState(buildDeck);
   const [selected, setSelected] = useState([]);
   const [moves, setMoves] = useState(0);
@@ -14,6 +16,23 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
   const [status, setStatus] = useState('ready');
   const [finalScore, setFinalScore] = useState(0);
   const lockRef = useRef(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    function measure() {
+      const style = getComputedStyle(el);
+      const padX = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+      const padY = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+      const availW = el.clientWidth - padX;
+      const availH = el.clientHeight - padY;
+      setSquareSize(Math.max(0, Math.min(availW, availH)));
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   function reset() {
     setDeck(buildDeck());
     setSelected([]);
@@ -67,8 +86,8 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
         <div className="stat"><span>Best</span><div className="value">{bestScore}</div></div>
       </div>
 
-      <div className="canvas-container">
-        <div className="canvas-wrapper" style={{ aspectRatio: '1 / 1', width: '100%', height: 'auto', maxHeight: '100%', background: 'transparent' }}>
+      <div className="canvas-container" ref={containerRef}>
+        <div className="canvas-wrapper" style={{ width: squareSize || '100%', height: squareSize || '100%', background: 'transparent' }}>
           <div
             className="memory-board"
             style={{
