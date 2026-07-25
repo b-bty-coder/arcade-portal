@@ -1,4 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
+import { InterstitialAdSlot } from '../components/AdSlot';
+import { recordFail } from '../lib/adFrequency';
+
 const ICONS = ['🕹️', '👾', '🎮', '🧩', '🚀', '⭐', '🍄', '🔥'];
 function buildDeck() {
   const deck = [...ICONS, ...ICONS]
@@ -13,9 +16,11 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
   const [selected, setSelected] = useState([]);
   const [moves, setMoves] = useState(0);
   const [startTime, setStartTime] = useState(null);
-  const [status, setStatus] = useState('ready');
+  const [status, setStatus] = useState('ready'); // ready | playing | over | interstitial
   const [finalScore, setFinalScore] = useState(0);
   const lockRef = useRef(false);
+  const pendingScoreRef = useRef(0);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -41,6 +46,12 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
     setStatus('playing');
     lockRef.current = false;
   }
+
+  function finishAfterInterstitial() {
+    setStatus('over');
+    onGameOver?.(pendingScoreRef.current);
+  }
+
   function handleFlip(card) {
     if (status !== 'playing' || lockRef.current) return;
     if (card.flipped || card.matched) return;
@@ -69,8 +80,14 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
             const elapsedSec = Math.max(1, Math.round((Date.now() - startTime) / 1000));
             const score = Math.max(50, Math.round(2000 / (moves + 1) + 2000 / elapsedSec));
             setFinalScore(score);
-            setStatus('over');
-            onGameOver?.(score);
+            pendingScoreRef.current = score;
+            const { showInterstitial } = recordFail();
+            if (showInterstitial) {
+              setStatus('interstitial');
+            } else {
+              setStatus('over');
+              onGameOver?.(score);
+            }
           }
           return next;
         });
@@ -107,7 +124,7 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
               </button>
             ))}
           </div>
-          {status !== 'playing' && (
+          {(status === 'ready' || status === 'over') && (
             <div className="game-overlay">
               <p className="display-sm" style={{ color: '#f5f0e6' }}>
                 {status === 'over' ? `SOLVED — SCORE ${finalScore}` : 'MATCH THE PAIRS'}
@@ -119,6 +136,10 @@ export default function Memory({ onGameOver, bestScore = 0 }) {
           )}
         </div>
       </div>
+
+      {status === 'interstitial' && (
+        <InterstitialAdSlot onClose={finishAfterInterstitial} />
+      )}
     </div>
   );
 }
