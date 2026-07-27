@@ -2085,3 +2085,12 @@ footer.site-footer {
   color: var(--muted);
   font-size: 13px;
 }
+
+.snake-dpad {
+  grid-template-columns: repeat(3, 76px) !important;
+  grid-template-rows: repeat(3, 76px) !important;
+  gap: 12px !important;
+}
+.snake-dpad-btn {
+  font-size: 28px !important;
+}

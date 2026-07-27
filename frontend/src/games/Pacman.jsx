@@ -91,6 +91,7 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
   const ghostsRef = useRef([]);
   const frightenedRef = useRef(false);
   const livesRef = useRef(3);
+  const hasRevivedRef = useRef(false);
 
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -121,6 +122,7 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
     livesRef.current = 3;
     setLives(3);
     setLevel(1);
+    hasRevivedRef.current = false;
     setOverStage(null);
     setPaused(false);
     setStatus('playing');
@@ -133,6 +135,7 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
   function handleContinueWithAd() {
     livesRef.current = 1;
     setLives(1);
+    hasRevivedRef.current = true;
     resetPositions();
     setOverStage(null);
     setPaused(false);
@@ -262,8 +265,19 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
             livesRef.current = Math.max(0, livesRef.current - 1);
             setLives(livesRef.current);
             if (livesRef.current <= 0) {
-              setOverStage('choice');
               setPaused(true);
+              if (!hasRevivedRef.current) {
+                setOverStage('choice');
+              } else {
+                const { showInterstitial } = recordFail();
+                if (showInterstitial) {
+                  setOverStage('interstitial');
+                } else {
+                  setOverStage('final');
+                  setStatus('over');
+                  onGameOver?.(score);
+                }
+              }
             } else {
               resetPositions();
             }
