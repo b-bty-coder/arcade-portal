@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { RewardedAdSlot, InterstitialAdSlot } from '../components/AdSlot';
+import { recordFail, recordLevelPassed } from '../lib/adFrequency';
 
 const CELL = 24;
 
@@ -94,7 +96,10 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
   const [lives, setLives] = useState(3);
   const [level, setLevel] = useState(1);
   const [status, setStatus] = useState('ready'); // ready | playing | over
+  const [paused, setPaused] = useState(false);
   const [toast, setToast] = useState(null);
+  const [overStage, setOverStage] = useState(null); // null | 'choice' | 'interstitial' | 'final'
+  const [levelInterstitial, setLevelInterstitial] = useState(false);
 
   const resetPositions = useCallback(() => {
     playerRef.current = { r: PLAYER_START.r, c: PLAYER_START.c, dir: { dx: 0, dy: 0 }, nextDir: { dx: 0, dy: 0 } };
@@ -116,11 +121,44 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
     livesRef.current = 3;
     setLives(3);
     setLevel(1);
+    setOverStage(null);
+    setPaused(false);
     setStatus('playing');
   }
 
   function restart() {
     start();
+  }
+
+  function handleContinueWithAd() {
+    livesRef.current = 1;
+    setLives(1);
+    resetPositions();
+    setOverStage(null);
+    setPaused(false);
+    setStatus('playing');
+  }
+
+  function declineAdAndMaybeInterstitial() {
+    const { showInterstitial } = recordFail();
+    if (showInterstitial) {
+      setOverStage('interstitial');
+    } else {
+      setOverStage('final');
+      setStatus('over');
+      onGameOver?.(score);
+    }
+  }
+
+  function finishAfterGameOverInterstitial() {
+    setOverStage('final');
+    setStatus('over');
+    onGameOver?.(score);
+  }
+
+  function closeLevelInterstitial() {
+    setLevelInterstitial(false);
+    setPaused(false);
   }
 
   const speedFactor = 1 + (level - 1) * 0.06;
@@ -169,7 +207,15 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
           frightTimerRef.current = FRIGHT_MS;
         }
         if (dotsLeftRef.current <= 0) {
-          setLevel((lv) => lv + 1);
+          setLevel((lv) => {
+            const nextLevel = lv + 1;
+            const { showInterstitial } = recordLevelPassed();
+            if (showInterstitial) {
+              setPaused(true);
+              setLevelInterstitial(true);
+            }
+            return nextLevel;
+          });
           setToast('LEVEL CLEAR!');
           setTimeout(() => setToast(null), 1200);
           const built = buildDots();
@@ -216,7 +262,8 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
             livesRef.current = Math.max(0, livesRef.current - 1);
             setLives(livesRef.current);
             if (livesRef.current <= 0) {
-              setStatus('over');
+              setOverStage('choice');
+              setPaused(true);
             } else {
               resetPositions();
             }
@@ -317,7 +364,7 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
       const dt = ts - lastTsRef.current;
       lastTsRef.current = ts;
 
-      if (status === 'playing') {
+      if (status === 'playing' && !paused) {
         mouthPhaseRef.current += dt / 120;
 
         if (frightenedRef.current) {
@@ -347,14 +394,7 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, playerTick, ghostTick]);
-
-  useEffect(() => {
-    if (status === 'over') {
-      onGameOver?.(score);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, paused, playerTick, ghostTick]);
 
   useEffect(() => {
     setupGame();
@@ -383,8 +423,20 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
         >
           <canvas ref={canvasRef} width={canvasW} height={canvasH} />
           {toast && <div className="win-toast">{toast}</div>}
-          {status === 'over' && (
-            <div className="tetris-overlay">
+
+          {overStage === 'choice' && (
+            <div className="tetris-overlay" onPointerDown={(e) => e.stopPropagation()}>
+              <p>Out of lives!</p>
+              <span>Score: {score}</span>
+              <RewardedAdSlot onRewardClaim={handleContinueWithAd} rewardLabel="1 extra life" />
+              <button className="btn btn-ghost" onClick={declineAdAndMaybeInterstitial}>
+                No thanks, restart
+              </button>
+            </div>
+          )}
+
+          {overStage === 'final' && (
+            <div className="tetris-overlay" onPointerDown={(e) => e.stopPropagation()}>
               <p>Game Over</p>
               <span>Score: {score}</span>
               <button className="btn btn-primary" onClick={restart}>Play again</button>
@@ -399,6 +451,13 @@ export default function Pacman({ onGameOver, bestScore = 0 }) {
         <button className="snake-dpad-btn snake-dpad-right" onClick={() => press({ dx: 1, dy: 0 })} aria-label="Move right">▶</button>
         <button className="snake-dpad-btn snake-dpad-down" onClick={() => press({ dx: 0, dy: 1 })} aria-label="Move down">▼</button>
       </div>
+
+      {overStage === 'interstitial' && (
+        <InterstitialAdSlot onClose={finishAfterGameOverInterstitial} />
+      )}
+      {levelInterstitial && (
+        <InterstitialAdSlot onClose={closeLevelInterstitial} label="Level milestone ad" />
+      )}
     </div>
   );
 }
