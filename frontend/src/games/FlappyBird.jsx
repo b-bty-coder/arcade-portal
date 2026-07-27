@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { RewardedAdSlot, InterstitialAdSlot } from '../components/AdSlot';
+import { recordFail } from '../lib/adFrequency';
 
 const CANVAS_W = 288;
 const CANVAS_H = 512;
@@ -24,15 +26,17 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
   const birdRef = useRef({ y: CANVAS_H / 2, vel: 0, rot: 0 });
   const pipesRef = useRef([]);
   const groundOffsetRef = useRef(0);
+  const hasRevivedRef = useRef(false);
 
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState('ready'); // ready | playing | over
+  const [status, setStatus] = useState('ready'); // ready | playing | dying | interstitial | over
 
   const flap = useCallback(() => {
-    if (status === 'over') return;
+    if (status === 'dying' || status === 'interstitial' || status === 'over') return;
     if (status === 'ready') {
       birdRef.current = { y: CANVAS_H / 2, vel: FLAP_VELOCITY, rot: 0 };
       pipesRef.current = [{ x: CANVAS_W + 40, gapY: randomGapY(), passed: false }];
+      hasRevivedRef.current = false;
       setScore(0);
       setStatus('playing');
       return;
@@ -44,8 +48,37 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
     birdRef.current = { y: CANVAS_H / 2, vel: 0, rot: 0 };
     pipesRef.current = [];
     groundOffsetRef.current = 0;
+    hasRevivedRef.current = false;
     setScore(0);
     setStatus('ready');
+  }
+
+  function reviveWithAd() {
+    birdRef.current = { y: CANVAS_H / 2, vel: FLAP_VELOCITY, rot: 0 };
+    // push existing pipes further away so the bird doesn't instantly re-collide
+    pipesRef.current = pipesRef.current
+      .filter((p) => p.x + PIPE_W > BIRD_X + 60)
+      .map((p) => ({ ...p, x: p.x + 120 }));
+    if (pipesRef.current.length === 0) {
+      pipesRef.current = [{ x: CANVAS_W + 40, gapY: randomGapY(), passed: false }];
+    }
+    hasRevivedRef.current = true;
+    setStatus('playing');
+  }
+
+  function finalizeGameOver() {
+    const { showInterstitial } = recordFail();
+    if (showInterstitial) {
+      setStatus('interstitial');
+    } else {
+      setStatus('over');
+      onGameOver?.(score);
+    }
+  }
+
+  function finishAfterInterstitial() {
+    setStatus('over');
+    onGameOver?.(score);
   }
 
   useEffect(() => {
@@ -107,7 +140,6 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
       ctx.translate(BIRD_X, bird.y);
       ctx.rotate(bird.rot);
 
-      // body (slightly oval)
       ctx.fillStyle = '#f2c14e';
       ctx.beginPath();
       ctx.ellipse(0, 0, BIRD_R + 2, BIRD_R, 0, 0, Math.PI * 2);
@@ -116,13 +148,11 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // belly highlight
       ctx.fillStyle = '#fbe3a1';
       ctx.beginPath();
       ctx.ellipse(-2, 4, BIRD_R - 4, BIRD_R - 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // wing (flaps up/down while playing)
       ctx.fillStyle = '#e0a83a';
       ctx.beginPath();
       ctx.ellipse(-4, 2 + wingPhase * 4, 8, 5, -0.3, 0, Math.PI * 2);
@@ -131,7 +161,6 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // tail feather
       ctx.fillStyle = '#e4572e';
       ctx.beginPath();
       ctx.moveTo(-BIRD_R - 1, -2);
@@ -140,7 +169,6 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
       ctx.closePath();
       ctx.fill();
 
-      // beak
       ctx.fillStyle = '#e4572e';
       ctx.beginPath();
       ctx.moveTo(BIRD_R - 2, -1);
@@ -153,7 +181,6 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // eye white + pupil
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(5, -4, 4, 0, Math.PI * 2);
@@ -205,7 +232,11 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
         }
 
         if (checkCollision()) {
-          setStatus('over');
+          if (!hasRevivedRef.current) {
+            setStatus('dying');
+          } else {
+            finalizeGameOver();
+          }
         }
       }
 
@@ -214,13 +245,6 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
 
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
-
-  useEffect(() => {
-    if (status === 'over') {
-      onGameOver?.(score);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
@@ -238,8 +262,20 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
           onPointerDown={flap}
         >
           <canvas ref={canvasRef} width={CANVAS_W} height={CANVAS_H} />
+
+          {status === 'dying' && (
+            <div className="tetris-overlay" onPointerDown={(e) => e.stopPropagation()}>
+              <p>You crashed!</p>
+              <span>Score: {score}</span>
+              <RewardedAdSlot onRewardClaim={reviveWithAd} rewardLabel="one more flap" />
+              <button className="btn btn-ghost" onClick={finalizeGameOver}>
+                No thanks, end game
+              </button>
+            </div>
+          )}
+
           {status === 'over' && (
-            <div className="tetris-overlay">
+            <div className="tetris-overlay" onPointerDown={(e) => e.stopPropagation()}>
               <p>Game Over</p>
               <span>Score: {score}</span>
               <button className="btn btn-primary" onClick={restart}>Play again</button>
@@ -247,6 +283,10 @@ export default function FlappyBird({ onGameOver, bestScore = 0 }) {
           )}
         </div>
       </div>
+
+      {status === 'interstitial' && (
+        <InterstitialAdSlot onClose={finishAfterInterstitial} />
+      )}
     </div>
   );
 }
