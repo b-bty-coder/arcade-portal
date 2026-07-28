@@ -50,15 +50,40 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
     s.nextDir = next;
   }
 
+  function buildRevivedSnake(length) {
+    // Lay the tail out in a zigzag (boustrophedon) starting from the
+    // head, wrapping to the next row whenever it hits an edge. This
+    // guarantees no self-overlap no matter how long the snake is —
+    // a simple straight-line wrap breaks (segments land on top of
+    // each other) once the snake is longer than the board is wide.
+    const startX = 8;
+    const startY = 9;
+    const cells = [{ x: startX, y: startY }];
+    let x = startX;
+    let y = startY;
+    let dir = -1; // tail extends leftwards from the head first
+    for (let i = 1; i < length; i++) {
+      x += dir;
+      if (x < 0) {
+        y = (y + 1) % GRID;
+        dir = 1;
+        x = 0;
+      } else if (x >= GRID) {
+        y = (y + 1) % GRID;
+        dir = -1;
+        x = GRID - 1;
+      }
+      cells.push({ x, y });
+    }
+    return cells;
+  }
+
   function reviveSnake() {
     const s = stateRef.current;
     const keepLength = s.snake.length;
     // Rebuild the snake at the same length it had before dying, just
     // moved back to a safe spot in the middle of the board.
-    const freshSnake = Array.from({ length: keepLength }, (_, i) => {
-      const x = 8 - i;
-      return { x: x >= 0 ? x : x + GRID, y: 9 };
-    });
+    const freshSnake = buildRevivedSnake(keepLength);
     s.snake = freshSnake;
     s.dir = { x: 1, y: 0 };
     s.nextDir = { x: 1, y: 0 };
