@@ -52,7 +52,13 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
 
   function reviveSnake() {
     const s = stateRef.current;
-    const freshSnake = [...START_SNAKE];
+    const keepLength = s.snake.length;
+    // Rebuild the snake at the same length it had before dying, just
+    // moved back to a safe spot in the middle of the board.
+    const freshSnake = Array.from({ length: keepLength }, (_, i) => {
+      const x = 8 - i;
+      return { x: x >= 0 ? x : x + GRID, y: 9 };
+    });
     s.snake = freshSnake;
     s.dir = { x: 1, y: 0 };
     s.nextDir = { x: 1, y: 0 };
@@ -64,21 +70,18 @@ export default function Snake({ onGameOver, bestScore = 0 }) {
   }
 
   function finalizeGameOver() {
-    const s = stateRef.current;
-    const finalScore = s.snake.length - 3;
     const { showInterstitial } = recordFail();
     if (showInterstitial) {
       setStatus('interstitial');
     } else {
       setStatus('over');
-      onGameOver?.(finalScore);
+      onGameOver?.(score);
     }
   }
 
   function finishAfterInterstitial() {
-    const s = stateRef.current;
     setStatus('over');
-    onGameOver?.(s.snake.length - 3);
+    onGameOver?.(score);
   }
 
   useEffect(() => {
