@@ -6,6 +6,7 @@ const Tetris = lazy(() => import('./Tetris.jsx'));
 const Game2048 = lazy(() => import('./Game2048.jsx'));
 const FlappyBird = lazy(() => import('./FlappyBird.jsx'));
 const Pacman = lazy(() => import('./Pacman.jsx'));
+const Sokoban = lazy(() => import('./Sokoban.jsx'));
 
 export const GAMES = [
   {
@@ -55,6 +56,14 @@ export const GAMES = [
     accent: 'var(--amber)',
     thumbnail: '/thumbnails/pacman.svg',
     component: Pacman,
+  },
+  {
+    id: 'sokoban',
+    title: 'Box Pusher',
+    description: 'Push every crate onto its target. 20 hand-built puzzles, more on the way.',
+    accent: 'var(--plum)',
+    thumbnail: '/thumbnails/sokoban.svg',
+    component: Sokoban,
   },
 ];
 
