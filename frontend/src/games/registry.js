@@ -7,6 +7,8 @@ const Game2048 = lazy(() => import('./Game2048.jsx'));
 const FlappyBird = lazy(() => import('./FlappyBird.jsx'));
 const Pacman = lazy(() => import('./Pacman.jsx'));
 const Sokoban = lazy(() => import('./Sokoban.jsx'));
+const Breakout = lazy(() => import('./Breakout.jsx'));
+const GemCascade = lazy(() => import('./GemCascade.jsx'));
 
 export const GAMES = [
   {
@@ -64,6 +66,22 @@ export const GAMES = [
     accent: 'var(--plum)',
     thumbnail: '/thumbnails/sokoban.svg',
     component: Sokoban,
+  },
+  {
+    id: 'breakout',
+    title: 'Breakout',
+    description: 'Smash every brick, keep the ball alive, level up as it speeds up.',
+    accent: 'var(--ember)',
+    thumbnail: '/thumbnails/breakout.svg',
+    component: Breakout,
+  },
+  {
+    id: 'gem-cascade',
+    title: 'Gem Cascade',
+    description: 'Match 3 gems, chain cascades, clear the target before you run out of moves.',
+    accent: 'var(--plum)',
+    thumbnail: '/thumbnails/gem-cascade.svg',
+    component: GemCascade,
   },
 ];
 

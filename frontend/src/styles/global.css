@@ -2094,3 +2094,23 @@ footer.site-footer {
 .snake-dpad-btn {
   font-size: 28px !important;
 }
+
+.breakout-slide-strip {
+  margin-top: 10px;
+  height: 56px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  user-select: none;
+}
+.breakout-slide-strip:active {
+  background: rgba(255,255,255,0.06);
+  color: var(--paper);
+}
